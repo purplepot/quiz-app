@@ -29,10 +29,34 @@ function Lobby({ quizCode, players, onStart }: LobbyProps) {
   return (
     <div className="phase-container">
       {/* TODO: Label "Code du quiz" avec classe .quiz-code-label */}
+      <p className="quiz-code-label">Code du quiz</p>
+
       {/* TODO: Afficher quizCode avec classe .quiz-code */}
+      <div className="quiz-code" style={{ borderRadius: 0 }}>
+        {quizCode}
+      </div>
+
       {/* TODO: Afficher le nombre de joueurs */}
+      <p className="player-count">{players.length} joueur{players.length !== 1 ? 's' : ''} connecté{players.length !== 1 ? 's' : ''}</p>
+
       {/* TODO: Liste des joueurs avec .player-list et .player-chip */}
+      <div className="player-list">
+        {players.map((name) => (
+          <span key={name} className="player-chip" style={{ borderRadius: 0 }}>
+            {name}
+          </span>
+        ))}
+      </div>
+
       {/* TODO: Bouton Demarrer avec classe .btn-start, desactive si 0 joueurs */}
+      <button
+        className="btn-start"
+        onClick={onStart}
+        disabled={players.length === 0}
+        style={{ borderRadius: 0 }}
+      >
+        Demarrer le quiz
+      </button>
     </div>
   )
 }
