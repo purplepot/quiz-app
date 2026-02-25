@@ -58,9 +58,23 @@ wss.on("connection", (ws: WebSocket) => {
       case "join": {
         // TODO: Recuperer la salle avec message.quizCode depuis la map rooms
         // TODO: Si la salle n'existe pas, envoyer une erreur
+        const room = rooms.get(message.quizCode);
+        if (!room) {
+          send(ws, { type: "error", message: "La salle n'existe pas" });
+          break;
+        }
         // TODO: Si la salle n'est pas en phase 'lobby', envoyer une erreur
+        if (room.phase !== "lobby") {
+          send(ws, {
+            type: "error",
+            message: "La salle n'est plus en attente",
+          });
+          break;
+        }
         // TODO: Appeler room.addPlayer(message.name, ws)
+        const playerId = room.addPlayer(message.name, ws);
         // TODO: Stocker l'association ws -> { room, playerId } dans clientRoomMap
+        clientRoomMap.set(ws, { room, playerId });
         break;
       }
 
@@ -70,7 +84,20 @@ wss.on("connection", (ws: WebSocket) => {
       case "answer": {
         // TODO: Recuperer le { room, playerId } depuis clientRoomMap
         // TODO: Si non trouve, envoyer une erreur
+        const entry = clientRoomMap.get(ws);
+        const room = entry?.room;
+        const playerId = entry?.playerId;
+        if (!room) {
+          send(ws, { type: "error", message: "La salle n'existe pas" });
+          break;
+        }
+
+        if (!playerId) {
+          send(ws, { type: "error", message: "Le player n'existe pas" });
+          break;
+        }
         // TODO: Appeler room.handleAnswer(playerId, message.choiceIndex)
+        room.handleAnswer(playerId, message.choiceIndex);
         break;
       }
 
@@ -84,7 +111,9 @@ wss.on("connection", (ws: WebSocket) => {
         // TODO: Creer une nouvelle QuizRoom (id = Date.now().toString(), code)
         const room = new QuizRoom(id, code);
         // TODO: Assigner hostWs, title, questions sur la room
-        ((room.hostWs = ws), room.title, message.questions);
+        room.hostWs = ws;
+        room.title = message.title;
+        room.questions = message.questions;
         // TODO: Stocker la room dans rooms (cle = code)
         rooms.set(code, room);
         // TODO: Stocker l'association host ws -> room dans hostRoomMap
@@ -143,7 +172,7 @@ wss.on("connection", (ws: WebSocket) => {
         // TODO: Supprimer la room de rooms
         rooms.delete(room.code);
         // TODO: Nettoyer hostRoomMap et clientRoomMap
-        console.log(rooms);
+        hostRoomMap.delete(ws);
         break;
       }
 

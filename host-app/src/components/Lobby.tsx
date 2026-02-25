@@ -32,7 +32,7 @@ function Lobby({ quizCode, players, onStart }: LobbyProps) {
       <p className="quiz-code-label">Code du quiz</p>
 
       {/* TODO: Afficher quizCode avec classe .quiz-code */}
-      <div className="quiz-code" style={{ borderRadius: 0 }}>
+      <div className="quiz-code">
         {quizCode}
       </div>
 
@@ -45,7 +45,7 @@ function Lobby({ quizCode, players, onStart }: LobbyProps) {
       {/* TODO: Liste des joueurs avec .player-list et .player-chip */}
       <div className="player-list">
         {players.map((name) => (
-          <span key={name} className="player-chip" style={{ borderRadius: 0 }}>
+          <span key={name} className="player-chip">
             {name}
           </span>
         ))}
@@ -56,7 +56,6 @@ function Lobby({ quizCode, players, onStart }: LobbyProps) {
         className="btn-start"
         onClick={onStart}
         disabled={players.length === 0}
-        style={{ borderRadius: 0 }}
       >
         Demarrer le quiz
       </button>
