@@ -88,7 +88,6 @@ function CreateQuiz({ onSubmit }: CreateQuizProps) {
     }
     // TODO: Appeler onSubmit(title, questions)
     onSubmit(title, questions);
-    console.log(title, questions);
   };
 
   const addQuestion = () => {

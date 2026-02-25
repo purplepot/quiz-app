@@ -35,13 +35,49 @@ interface QuestionViewProps {
  * (c'est purement visuel pour projeter au mur)
  */
 function QuestionView({ question, index, total, remaining, answerCount, totalPlayers }: QuestionViewProps) {
+  const timerClass = remaining <= 3 ? 'danger' : remaining <= 10 ? 'warning' : ''
+
   return (
     <div className="phase-container">
+
       {/* TODO: En-tete "Question {index + 1} / {total}" */}
+      <div className="question-header">
+        <span>Question {index + 1} / {total}</span>
+        <span style={{ color: '#a78bfa', letterSpacing: '0.1em', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+          {question.timerSec}s par question
+        </span>
+      </div>
+
       {/* TODO: Timer avec .countdown-circle (+ .warning / .danger selon remaining) */}
+      <div className="countdown">
+        <div className={`countdown-circle ${timerClass}`}>
+          {remaining}
+        </div>
+      </div>
+
       {/* TODO: Texte de la question avec .question-text */}
+      <div className="question-text" style={{
+        borderLeft: '4px solid #7c3aed',
+        paddingLeft: '1rem',
+        textAlign: 'left',
+      }}>
+        {question.text}
+      </div>
+
       {/* TODO: Grille des 4 choix avec .choices-grid et .choice-card */}
+      <div className="choices-grid">
+        {question.choices.map((choice, i) => (
+          <div key={i} className="choice-card">
+            {choice}
+          </div>
+        ))}
+      </div>
+
       {/* TODO: Compteur "{answerCount} / {totalPlayers} reponses" */}
+      <p className="answer-counter">
+        {answerCount} / {totalPlayers} réponses
+      </p>
+
     </div>
   )
 }

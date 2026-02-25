@@ -55,43 +55,58 @@ function App() {
 
       case "joined": {
         // TODO: Mettre a jour la liste des joueurs avec lastMessage.players
+        setPlayers(lastMessage.players);
         break;
       }
 
       case "question": {
         // TODO: Mettre a jour currentQuestion, questionIndex, questionTotal
+        setCurrentQuestion(lastMessage.question);
+        setQuestionIndex(lastMessage.index);
+        setQuestionTotal(lastMessage.total);
         // TODO: Initialiser remaining avec la duree du timer de la question
+        setRemaining(lastMessage.question.timerSec);
         // TODO: Reinitialiser answerCount a 0
+        setAnswerCount(0);
         // TODO: Changer la phase en 'question'
+        setPhase("question");
         break;
       }
 
       case "tick": {
         // TODO: Mettre a jour remaining avec lastMessage.remaining
+        setRemaining(lastMessage.remaining);
         break;
       }
 
       case "results": {
         // TODO: Mettre a jour correctIndex, distribution
+        setCorrectIndex(lastMessage.correctIndex);
+        setDistribution(lastMessage.distribution);
         // TODO: Calculer answerCount (somme de distribution)
+        setAnswerCount(lastMessage.distribution.reduce((a, b) => a + b, 0));
         // TODO: Changer la phase en 'results'
+        setPhase("results");
         break;
       }
 
       case "leaderboard": {
         // TODO: Mettre a jour rankings avec lastMessage.rankings
+        setRankings(lastMessage.rankings);
         // TODO: Changer la phase en 'leaderboard'
+        setPhase("leaderboard");
         break;
       }
 
       case "ended": {
         // TODO: Changer la phase en 'ended'
+        setPhase("ended");
         break;
       }
 
       case "error": {
         // TODO: Afficher l'erreur (console.error ou alert)
-        console.error;
+        console.error(lastMessage.message);
         break;
       }
     }
