@@ -101,7 +101,13 @@ wss.on("connection", (ws: WebSocket) => {
       case "host:start": {
         // TODO: Recuperer la room depuis hostRoomMap
         // TODO: Si non trouvee, envoyer une erreur
+        const room = hostRoomMap.get(ws);
+        if (!room) {
+          send(ws, { type: "error", message: "hostRoomMap not found" });
+          break;
+        }
         // TODO: Appeler room.start()
+        room.start();
         break;
       }
 
@@ -110,8 +116,14 @@ wss.on("connection", (ws: WebSocket) => {
       // ============================================================
       case "host:next": {
         // TODO: Recuperer la room depuis hostRoomMap
+        const room = hostRoomMap.get(ws);
         // TODO: Si non trouvee, envoyer une erreur
+        if (!room) {
+          send(ws, { type: "error", message: "hostRoomMap not found" });
+          break;
+        }
         // TODO: Appeler room.nextQuestion()
+        room.nextQuestion();
         break;
       }
 
@@ -120,10 +132,18 @@ wss.on("connection", (ws: WebSocket) => {
       // ============================================================
       case "host:end": {
         // TODO: Recuperer la room depuis hostRoomMap
+        const room = hostRoomMap.get(ws);
         // TODO: Si non trouvee, envoyer une erreur
+        if (!room) {
+          send(ws, { type: "error", message: "hostRoomMap not found" });
+          break;
+        }
         // TODO: Appeler room.end()
+        room.end();
         // TODO: Supprimer la room de rooms
+        rooms.delete(room.code);
         // TODO: Nettoyer hostRoomMap et clientRoomMap
+        console.log(rooms);
         break;
       }
 

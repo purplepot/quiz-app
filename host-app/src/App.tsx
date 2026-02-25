@@ -91,6 +91,7 @@ function App() {
 
       case "error": {
         // TODO: Afficher l'erreur (console.error ou alert)
+        console.error;
         break;
       }
     }
