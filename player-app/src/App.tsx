@@ -28,6 +28,7 @@ function App() {
   const [score, setScore] = useState(0)
   const [rankings, setRankings] = useState<{ name: string; score: number }[]>([])
   const [error, setError] = useState<string | undefined>(undefined)
+  const [selectedChoice, setSelectedChoice] = useState<number | null>(null)
 
   // --- Traitement des messages du serveur ---
   useEffect(() => {
@@ -38,47 +39,64 @@ function App() {
 
     switch (lastMessage.type) {
       case 'joined': {
-        // TODO: Mettre a jour la liste des joueurs
-        // TODO: Passer en phase 'lobby'
-        // TODO: Effacer les erreurs
+        // Mettre a jour la liste des joueurs
+        setPlayers(lastMessage.players)
+        // Passer en phase 'lobby'
+        setPhase('lobby')
+        // Effacer les erreurs
+        setError(undefined)
         break
       }
 
       case 'question': {
-        // TODO: Mettre a jour currentQuestion avec lastMessage.question
-        // TODO: Mettre a jour remaining avec lastMessage.question.timerSec
-        // TODO: Reinitialiser hasAnswered a false
-        // TODO: Changer la phase en 'question'
+        // Mettre a jour currentQuestion avec lastMessage.question
+        setCurrentQuestion(lastMessage.question)
+        // Mettre a jour remaining avec lastMessage.question.timerSec
+        setRemaining(lastMessage.question.timerSec)
+        // Reinitialiser hasAnswered a false
+        setHasAnswered(false)
+        setSelectedChoice(null)
+        // Changer la phase en 'question'
+        setPhase('question')
         break
       }
 
       case 'tick': {
-        // TODO: Mettre a jour remaining avec lastMessage.remaining
+        // Mettre a jour remaining avec lastMessage.remaining
+        setRemaining(lastMessage.remaining)
         break
       }
 
       case 'results': {
-        // TODO: Verifier si le joueur a repondu correctement
-        //   (comparer la reponse du joueur avec lastMessage.correctIndex)
-        // TODO: Mettre a jour lastCorrect (true/false)
-        // TODO: Recuperer le score du joueur depuis lastMessage.scores
-        // TODO: Changer la phase en 'feedback'
+        // Verifier si le joueur a repondu correctement
+        const isCorrect = selectedChoice === lastMessage.correctIndex
+        // (comparer la reponse du joueur avec lastMessage.correctIndex)
+        setLastCorrect(isCorrect)
+        // Mettre a jour lastCorrect (true/false)
+        // Recuperer le score du joueur depuis lastMessage.scores
+        setScore(lastMessage.scores[playerName] || 0)
+        // Changer la phase en 'feedback'
+        setPhase('feedback')
         break
       }
 
       case 'leaderboard': {
-        // TODO: Mettre a jour rankings avec lastMessage.rankings
-        // TODO: Changer la phase en 'leaderboard'
+        // Mettre a jour rankings avec lastMessage.rankings
+        setRankings(lastMessage.rankings)
+        // Changer la phase en 'leaderboard'
+        setPhase('leaderboard')
         break
       }
 
       case 'ended': {
-        // TODO: Changer la phase en 'ended'
+        // Changer la phase en 'ended'
+        setPhase('ended')
         break
       }
 
       case 'error': {
-        // TODO: Stocker le message d'erreur dans le state error
+        // Stocker le message d'erreur dans le state error
+        setError(lastMessage.message)
         break
       }
     }
@@ -88,15 +106,22 @@ function App() {
 
   /** Appele quand le joueur soumet le formulaire de connexion */
   const handleJoin = (code: string, name: string) => {
-    // TODO: Sauvegarder le nom du joueur dans playerName
-    // TODO: Envoyer un message 'join' au serveur avec sendMessage
+    // Sauvegarder le nom du joueur dans playerName
+    setPlayerName(name)
+    // Envoyer un message 'join' au serveur avec sendMessage
+    //console.log("test :", code, name); 
+    sendMessage({ type: 'join', quizCode: code, name })
   }
 
   /** Appele quand le joueur clique sur un choix de reponse */
   const handleAnswer = (choiceIndex: number) => {
-    // TODO: Verifier que le joueur n'a pas deja repondu (hasAnswered)
-    // TODO: Marquer hasAnswered a true
-    // TODO: Envoyer un message 'answer' au serveur avec l'id de la question et le choiceIndex
+    // Verifier que le joueur n'a pas deja repondu (hasAnswered)
+    if (hasAnswered || !currentQuestion) return
+    // Marquer hasAnswered a true
+    setHasAnswered(true)
+    setSelectedChoice(choiceIndex)
+    // Envoyer un message 'answer' au serveur avec l'id de la question et le choiceIndex
+    sendMessage({ type: 'answer', questionId: currentQuestion.id, choiceIndex })
   }
 
   // --- Rendu par phase ---
