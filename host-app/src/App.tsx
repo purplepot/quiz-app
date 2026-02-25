@@ -12,7 +12,7 @@ import QuestionView from "./components/QuestionView";
 import Results from "./components/Results";
 import { useWebSocket } from "./hooks/useWebSocket";
 
-const WS_URL = "ws://localhost:3001";
+const WS_URL = `ws://${window.location.hostname}:3001`;
 
 function App() {
   const { status, sendMessage, lastMessage } = useWebSocket(WS_URL);

@@ -12,7 +12,7 @@ import AnswerScreen from './components/AnswerScreen'
 import FeedbackScreen from './components/FeedbackScreen'
 import ScoreScreen from './components/ScoreScreen'
 
-const WS_URL = 'ws://localhost:3001'
+const WS_URL = `ws://${window.location.hostname}:3001`
 
 function App() {
   const { status, sendMessage, lastMessage } = useWebSocket(WS_URL)
