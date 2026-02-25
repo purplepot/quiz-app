@@ -3,57 +3,60 @@
 // A IMPLEMENTER : remplir le corps de chaque methode
 // ============================================================
 
-import WebSocket from 'ws'
-import type { QuizQuestion, QuizPhase, ServerMessage } from '../../packages/shared-types'
-import { send, broadcast } from './utils'
+import WebSocket from "ws";
+import type {
+  QuizPhase,
+  QuizQuestion,
+  ServerMessage,
+} from "../../packages/shared-types";
 
 /** Represente un joueur connecte */
 interface Player {
-  id: string
-  name: string
-  ws: WebSocket
+  id: string;
+  name: string;
+  ws: WebSocket;
 }
 
 export class QuizRoom {
   /** Identifiant unique de la salle */
-  readonly id: string
+  readonly id: string;
 
   /** Code a 6 caracteres que les joueurs utilisent pour rejoindre */
-  readonly code: string
+  readonly code: string;
 
   /** Phase actuelle du quiz */
-  phase: QuizPhase = 'lobby'
+  phase: QuizPhase = "lobby";
 
   /** WebSocket du host (presentateur) */
-  hostWs: WebSocket | null = null
+  hostWs: WebSocket | null = null;
 
   /** Map des joueurs : playerId -> Player */
-  players: Map<string, Player> = new Map()
+  players: Map<string, Player> = new Map();
 
   /** Liste des questions du quiz */
-  questions: QuizQuestion[] = []
+  questions: QuizQuestion[] = [];
 
   /** Titre du quiz */
-  title: string = ''
+  title: string = "";
 
   /** Index de la question en cours (0-based) */
-  currentQuestionIndex: number = -1
+  currentQuestionIndex: number = -1;
 
   /** Map des reponses pour la question en cours : playerId -> choiceIndex */
-  answers: Map<string, number> = new Map()
+  answers: Map<string, number> = new Map();
 
   /** Map des scores cumules : playerId -> score total */
-  scores: Map<string, number> = new Map()
+  scores: Map<string, number> = new Map();
 
   /** Timer ID pour le compte a rebours (pour pouvoir l'annuler) */
-  timerId: ReturnType<typeof setInterval> | null = null
+  timerId: ReturnType<typeof setInterval> | null = null;
 
   /** Temps restant pour la question en cours */
-  remaining: number = 0
+  remaining: number = 0;
 
   constructor(id: string, code: string) {
-    this.id = id
-    this.code = code
+    this.id = id;
+    this.code = code;
   }
 
   /**
@@ -74,7 +77,7 @@ export class QuizRoom {
     // TODO: Initialiser le score a 0
     // TODO: Envoyer 'joined' a tous les clients
     // TODO: Retourner l'ID du joueur
-    return ''
+    return "";
   }
 
   /**
@@ -85,7 +88,10 @@ export class QuizRoom {
    */
   start(): void {
     // TODO: Verifier la phase et le nombre de joueurs
+    if (this.phase !== "lobby") return;
+    if (this.players.size <= 0) return;
     // TODO: Appeler nextQuestion()
+    this.start;
   }
 
   /**
@@ -157,7 +163,7 @@ export class QuizRoom {
    */
   private getPlayerWsList(): WebSocket[] {
     // TODO: Extraire les ws de this.players.values()
-    return []
+    return [];
   }
 
   /**
