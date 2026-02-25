@@ -29,11 +29,20 @@ interface ScoreScreenProps {
 function ScoreScreen({ rankings, playerName }: ScoreScreenProps) {
   return (
     <div className="phase-container score-screen">
-      {/* TODO: Titre "Classement" avec .leaderboard-title */}
+      {/* Titre "Classement" avec .leaderboard-title */}
+      <h1 className="leaderboard-title">Classement</h1>
+
       <div className="leaderboard">
-        {/* TODO: Pour chaque joueur dans rankings, afficher un .leaderboard-item */}
-        {/* TODO: Ajouter la classe .is-me si ranking.name === playerName */}
-        {/* TODO: Afficher rang, nom et score */}
+        {/* Pour chaque joueur dans rankings, afficher un .leaderboard-item */}
+        {/* Ajouter la classe .is-me si ranking.name === playerName */}
+        {rankings.map((ranking, index) => (
+          <div key={ranking.name} className={`leaderboard-item ${ranking.name === playerName ? 'is-me' : ''}`}>
+            {/* Afficher rang, nom et score */}
+            <span className="leaderboard-rank">{index + 1}</span>
+            <span className="leaderboard-name">{ranking.name}</span>
+            <span className="leaderboard-score">{ranking.score} pts</span>
+          </div>
+        ))}
       </div>
     </div>
   )

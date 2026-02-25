@@ -34,19 +34,37 @@ interface AnswerScreenProps {
  * .answer-question, .answer-grid, .answer-btn, .selected, .answered-message
  */
 function AnswerScreen({ question, remaining, onAnswer, hasAnswered }: AnswerScreenProps) {
-  // TODO: State optionnel pour stocker l'index du choix selectionne
+  // State optionnel pour stocker l'index du choix selectionne
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
 
   const handleClick = (index: number) => {
-    // TODO: Appeler onAnswer(index)
-    // TODO: Optionnel : sauvegarder l'index selectionne pour le style .selected
+    // Appeler onAnswer(index)
+    onAnswer(index)
+    // Optionnel : sauvegarder l'index selectionne pour le style .selected
+    setSelectedIndex(index)
   }
+
+  const timerClass = `answer-timer ${remaining <= 3 ? 'danger' : remaining <= 10 ? 'warning' : ''}`
 
   return (
     <div className="answer-screen">
-      {/* TODO: Timer avec .answer-timer (+ .warning / .danger selon remaining) */}
-      {/* TODO: Texte de la question avec .answer-question */}
-      {/* TODO: Grille de 4 boutons avec .answer-grid et .answer-btn */}
-      {/* TODO: Message "Reponse envoyee !" si hasAnswered */}
+      {/* Timer avec .answer-timer (+ .warning / .danger selon remaining) */}
+      <div className={timerClass}>{remaining}s</div>
+
+      {/* Texte de la question avec .answer-question */}
+      <h2 className="answer-question">{question.text}</h2>
+
+      {/* Grille de 4 boutons avec .answer-grid et .answer-btn */}
+      <div className="answer-grid">
+        {question.choices.map((choice, index) => (
+          <button key={index} className={`answer-btn btn-${index} ${selectedIndex === index ? 'selected' : ''}`} onClick={() => handleClick(index)} disabled={hasAnswered}>
+            {choice}
+          </button>
+        ))}
+      </div>
+
+      {/* Message "Reponse envoyee !" si hasAnswered */}
+      {hasAnswered && <p className="answered-message">Réponse envoyée !</p>}
     </div>
   )
 }

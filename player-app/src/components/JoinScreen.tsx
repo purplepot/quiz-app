@@ -27,22 +27,42 @@ interface JoinScreenProps {
  * .error-message, .btn-primary
  */
 function JoinScreen({ onJoin, error }: JoinScreenProps) {
-  // TODO: State pour le code du quiz
-  // TODO: State pour le pseudo
+  // State pour le code du quiz
+  // State pour le pseudo
+  const [code, setCode] = useState('')
+  const [name, setName] = useState('')
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Valider que les champs ne sont pas vides
-    // TODO: Appeler onJoin(code.toUpperCase(), name)
+    // Valider que les champs ne sont pas vides
+    // Appeler onJoin(code.toUpperCase(), name)
+    if (code.trim() && name.trim()) {
+      onJoin(code.toUpperCase().trim(), name.trim())
+    }
   }
 
   return (
     <form className="join-form" onSubmit={handleSubmit}>
       <h1>Rejoindre un Quiz</h1>
-      {/* TODO: Afficher l'erreur si elle existe */}
-      {/* TODO: Champ code du quiz avec classe .code-input */}
-      {/* TODO: Champ pseudo */}
-      {/* TODO: Bouton Rejoindre */}
+      {/* Afficher l'erreur si elle existe */}
+      {error && <p className="error-message">{error}</p>}
+      {/* Champ code du quiz avec classe .code-input */}
+      <div className="form-group">
+        <label>Code du Quiz</label>
+        <input type="text" maxLength={6} placeholder="Ex: LBJ236" className="code-input" value={code} onChange={(e) => setCode(e.target.value)}
+          required
+        />
+      </div>
+      {/* Champ pseudo */}
+      <div className="form-group">
+        <label>Ton Pseudo</label>
+        <input type="text" placeholder="Ex: Atu" value={name} onChange={(e) => setName(e.target.value)} required
+        />
+      </div>
+      {/* Bouton Rejoindre */}
+      <button type="submit" className="btn-primary">
+        C'est parti !
+      </button>
     </form>
   )
 }
