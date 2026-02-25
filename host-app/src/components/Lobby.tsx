@@ -5,11 +5,11 @@
 
 interface LobbyProps {
   /** Code du quiz a afficher pour que les joueurs rejoignent */
-  quizCode: string
+  quizCode: string;
   /** Liste des noms de joueurs connectes */
-  players: string[]
+  players: string[];
   /** Callback quand le host clique sur "Demarrer" */
-  onStart: () => void
+  onStart: () => void;
 }
 
 /**
@@ -37,7 +37,10 @@ function Lobby({ quizCode, players, onStart }: LobbyProps) {
       </div>
 
       {/* TODO: Afficher le nombre de joueurs */}
-      <p className="player-count">{players.length} joueur{players.length !== 1 ? 's' : ''} connecté{players.length !== 1 ? 's' : ''}</p>
+      <p className="player-count">
+        {players.length} joueur{players.length !== 1 ? "s" : ""} connecté
+        {players.length !== 1 ? "s" : ""}
+      </p>
 
       {/* TODO: Liste des joueurs avec .player-list et .player-chip */}
       <div className="player-list">
@@ -58,7 +61,7 @@ function Lobby({ quizCode, players, onStart }: LobbyProps) {
         Demarrer le quiz
       </button>
     </div>
-  )
+  );
 }
 
-export default Lobby
+export default Lobby;
