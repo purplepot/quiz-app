@@ -1,139 +1,233 @@
 // ============================================================
 // Player App - Composant principal
-// A IMPLEMENTER : gestion des messages et routage par phase
+// TO IMPLEMENT: message handling and phase routing
 // ============================================================
 
-import { useState, useEffect } from 'react'
-import { useWebSocket } from './hooks/useWebSocket'
-import type { QuizPhase, QuizQuestion } from '@shared/index'
-import JoinScreen from './components/JoinScreen'
-import WaitingLobby from './components/WaitingLobby'
-import AnswerScreen from './components/AnswerScreen'
-import FeedbackScreen from './components/FeedbackScreen'
-import ScoreScreen from './components/ScoreScreen'
+import { useState, useEffect } from "react";
+import { useWebSocket } from "./hooks/useWebSocket";
+import type {
+  LeaderboardEntry,
+  PlayerSnapshot,
+  QuizPhase,
+  QuizQuestion,
+} from "@shared/index";
+import JoinScreen from "./components/JoinScreen";
+import WaitingLobby from "./components/WaitingLobby";
+import AnswerScreen from "./components/AnswerScreen";
+import FeedbackScreen from "./components/FeedbackScreen";
+import ScoreScreen from "./components/ScoreScreen";
+import { ParticipantAuthForm } from "./components/ParticipantAuthForm";
+import { getClientIdentity } from "./utils/identity";
 
-const WS_URL = `ws://${window.location.hostname}:3001`
+const WS_URL = `ws://${window.location.hostname}:3003`;
+
+interface User {
+  userId: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
+// Check for existing login on mount
+function restoreAuth(): [boolean, User | null, string | null] {
+  const savedToken = localStorage.getItem("auth_token");
+  const savedUser = localStorage.getItem("user_data");
+
+  if (savedToken && savedUser) {
+    try {
+      return [true, JSON.parse(savedUser) as User, savedToken];
+    } catch {
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("user_data");
+    }
+  }
+  return [false, null, null];
+}
 
 function App() {
-  const { status, sendMessage, lastMessage } = useWebSocket(WS_URL)
+  const { status, sendMessage, lastMessage } = useWebSocket(WS_URL);
 
-  // --- Etats de l'application ---
-  const [phase, setPhase] = useState<QuizPhase | 'join' | 'feedback'>('join')
-  const [playerName, setPlayerName] = useState('')
-  const [players, setPlayers] = useState<string[]>([])
-  const [currentQuestion, setCurrentQuestion] = useState<Omit<QuizQuestion, 'correctIndex'> | null>(null)
-  const [remaining, setRemaining] = useState(0)
-  const [hasAnswered, setHasAnswered] = useState(false)
-  const [lastCorrect, setLastCorrect] = useState(false)
-  const [score, setScore] = useState(0)
-  const [rankings, setRankings] = useState<{ name: string; score: number }[]>([])
-  const [error, setError] = useState<string | undefined>(undefined)
-  const [selectedChoice, setSelectedChoice] = useState<number | null>(null)
+  // --- Auth state ---
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
-  // --- Traitement des messages du serveur ---
   useEffect(() => {
-    if (!lastMessage) return
+    const [loggedIn, savedUser, savedToken] = restoreAuth();
+    setIsLoggedIn(loggedIn);
+    setUser(savedUser);
+    setToken(savedToken);
+  }, []);
 
-    // TODO: Traiter chaque type de message du serveur
-    // Utiliser un switch sur lastMessage.type
+  // --- Application state ---
+  const [phase, setPhase] = useState<QuizPhase | "join" | "feedback">("join");
+  const [playerName, setPlayerName] = useState("");
+  const [playerId, setPlayerId] = useState("");
+  const [players, setPlayers] = useState<PlayerSnapshot[]>([]);
+  const [currentQuestion, setCurrentQuestion] = useState<Omit<
+    QuizQuestion,
+    "correctIndex"
+  > | null>(null);
+  const [remaining, setRemaining] = useState(0);
+  const [hasAnswered, setHasAnswered] = useState(false);
+  const [lastCorrect, setLastCorrect] = useState(false);
+  const [score, setScore] = useState(0);
+  const [rankings, setRankings] = useState<LeaderboardEntry[]>([]);
+  const [error, setError] = useState<string | undefined>(undefined);
+  const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
+  const [questionStartedAt, setQuestionStartedAt] = useState(0);
+  const [tabSwitchCount, setTabSwitchCount] = useState(0);
+
+  useEffect(() => {
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        setTabSwitchCount((prev) => prev + 1);
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, []);
+
+  // --- Server message handling ---
+  useEffect(() => {
+    if (!lastMessage) return;
+
+    // TODO: Handle each server message type
+    // Use a switch on lastMessage.type
 
     switch (lastMessage.type) {
-      case 'joined': {
-        // Mettre a jour la liste des joueurs
-        setPlayers(lastMessage.players)
-        // Passer en phase 'lobby'
-        setPhase('lobby')
-        // Effacer les erreurs
-        setError(undefined)
-        break
+      case "joined": {
+        // Update the player list
+        setPlayers(lastMessage.players);
+        setPlayerId(lastMessage.playerId);
+        setPhase("lobby");
+        // Clear errors
+        setError(undefined);
+        break;
       }
 
-      case 'question': {
-        // Mettre a jour currentQuestion avec lastMessage.question
-        setCurrentQuestion(lastMessage.question)
-        // Mettre a jour remaining avec lastMessage.question.timerSec
-        setRemaining(lastMessage.question.timerSec)
-        // Reinitialiser hasAnswered a false
-        setHasAnswered(false)
-        setSelectedChoice(null)
-        // Changer la phase en 'question'
-        setPhase('question')
-        break
+      case "question": {
+        // Update currentQuestion with lastMessage.question
+        setCurrentQuestion(lastMessage.question);
+        // Update remaining with lastMessage.question.timerSec
+        setRemaining(lastMessage.question.timerSec);
+        // Reset hasAnswered to false
+        setHasAnswered(false);
+        setSelectedChoice(null);
+        // Change phase to 'question'
+        setQuestionStartedAt(lastMessage.startedAt);
+        setTabSwitchCount(0);
+        setPhase("question");
+        break;
       }
 
-      case 'tick': {
-        // Mettre a jour remaining avec lastMessage.remaining
-        setRemaining(lastMessage.remaining)
-        break
+      case "tick": {
+        // Update remaining with lastMessage.remaining
+        setRemaining(lastMessage.remaining);
+        break;
       }
 
-      case 'results': {
-        // Verifier si le joueur a repondu correctement
-        const isCorrect = selectedChoice === lastMessage.correctIndex
-        // (comparer la reponse du joueur avec lastMessage.correctIndex)
-        setLastCorrect(isCorrect)
-        // Mettre a jour lastCorrect (true/false)
-        // Recuperer le score du joueur depuis lastMessage.scores
-        setScore(lastMessage.scores[playerName] || 0)
-        // Changer la phase en 'feedback'
-        setPhase('feedback')
-        break
+      case "results": {
+        // Check whether the player answered correctly
+        const isCorrect = selectedChoice === lastMessage.correctIndex;
+        // (compare player's answer with lastMessage.correctIndex)
+        setLastCorrect(isCorrect);
+        // Update score for the current player based on playerId.
+        setScore(lastMessage.scoresByPlayerId[playerId] || 0);
+        // Change phase to 'feedback'
+        setPhase("feedback");
+        break;
       }
 
-      case 'leaderboard': {
-        // Mettre a jour rankings avec lastMessage.rankings
-        setRankings(lastMessage.rankings)
-        // Changer la phase en 'leaderboard'
-        setPhase('leaderboard')
-        break
+      case "leaderboard": {
+        // Update rankings with lastMessage.rankings
+        setRankings(lastMessage.rankings);
+        // Change phase to 'leaderboard'
+        setPhase("leaderboard");
+        break;
       }
 
-      case 'ended': {
-        // Changer la phase en 'ended'
-        setPhase('ended')
-        break
+      case "ended": {
+        // Change phase to 'ended'
+        setPhase("ended");
+        break;
       }
 
-      case 'error': {
-        // Stocker le message d'erreur dans le state error
-        setError(lastMessage.message)
-        break
+      case "error": {
+        // Store error message in error state
+        setError(lastMessage.message);
+        break;
       }
     }
-  }, [lastMessage])
+  }, [lastMessage, playerId, selectedChoice]);
 
   // --- Handlers ---
 
-  /** Appele quand le joueur soumet le formulaire de connexion */
+  const handleLoginSuccess = (newToken: string, newUser: User) => {
+    setToken(newToken);
+    setUser(newUser);
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("user_data");
+    setToken(null);
+    setUser(null);
+    setIsLoggedIn(false);
+    setPhase("join");
+  };
+
+  /** Called when player submits the join form */
   const handleJoin = (code: string, name: string) => {
-    // Sauvegarder le nom du joueur dans playerName
-    setPlayerName(name)
-    // Envoyer un message 'join' au serveur avec sendMessage
-    //console.log("test :", code, name); 
-    sendMessage({ type: 'join', quizCode: code, name })
-  }
+    // Save player name in playerName
+    setPlayerName(name);
+    // Send a 'join' message to the server with sendMessage
+    //console.log("test :", code, name);
+    sendMessage({
+      type: "join",
+      quizCode: code,
+      name,
+      identity: getClientIdentity(),
+      joinedAt: Date.now(),
+    });
+  };
 
-  /** Appele quand le joueur clique sur un choix de reponse */
+  /** Called when player clicks an answer choice */
   const handleAnswer = (choiceIndex: number) => {
-    // Verifier que le joueur n'a pas deja repondu (hasAnswered)
-    if (hasAnswered || !currentQuestion) return
-    // Marquer hasAnswered a true
-    setHasAnswered(true)
-    setSelectedChoice(choiceIndex)
-    // Envoyer un message 'answer' au serveur avec l'id de la question et le choiceIndex
-    sendMessage({ type: 'answer', questionId: currentQuestion.id, choiceIndex })
-  }
+    // Ensure the player has not already answered (hasAnswered)
+    if (hasAnswered || !currentQuestion) return;
+    // Set hasAnswered to true
+    setHasAnswered(true);
+    setSelectedChoice(choiceIndex);
+    // Send an 'answer' message with question id and choiceIndex
+    const submittedAt = Date.now();
+    sendMessage({
+      type: "answer",
+      questionId: currentQuestion.id,
+      choiceIndex,
+      telemetry: {
+        submittedAt,
+        timeTakenMs: Math.max(0, submittedAt - questionStartedAt),
+        tabSwitchCount,
+        focusedAtSubmit: document.visibilityState === "visible",
+      },
+    });
+  };
 
-  // --- Rendu par phase ---
+  // --- Phase-based rendering ---
   const renderPhase = () => {
     switch (phase) {
-      case 'join':
-        return <JoinScreen onJoin={handleJoin} error={error} />
+      case "join":
+        return <JoinScreen onJoin={handleJoin} error={error} />;
 
-      case 'lobby':
-        return <WaitingLobby players={players} />
+      case "lobby":
+        return <WaitingLobby players={players} />;
 
-      case 'question':
+      case "question":
         return currentQuestion ? (
           <AnswerScreen
             question={currentQuestion}
@@ -141,47 +235,88 @@ function App() {
             onAnswer={handleAnswer}
             hasAnswered={hasAnswered}
           />
-        ) : null
+        ) : null;
 
-      case 'feedback':
-        return <FeedbackScreen correct={lastCorrect} score={score} />
+      case "feedback":
+        return <FeedbackScreen correct={lastCorrect} score={score} />;
 
-      case 'results':
-        // Pendant 'results' on reste sur FeedbackScreen
-        return <FeedbackScreen correct={lastCorrect} score={score} />
+      case "results":
+        // During 'results', stay on FeedbackScreen
+        return <FeedbackScreen correct={lastCorrect} score={score} />;
 
-      case 'leaderboard':
-        return <ScoreScreen rankings={rankings} playerName={playerName} />
+      case "leaderboard":
+        return (
+          <ScoreScreen
+            rankings={rankings}
+            playerName={playerName}
+            onExit={() => setPhase("join")}
+          />
+        );
 
-      case 'ended':
+      case "ended":
         return (
           <div className="phase-container">
-            <h1>Quiz termine !</h1>
-            <p className="ended-message">Merci d'avoir participe !</p>
-            <button className="btn-primary" onClick={() => setPhase('join')}>
-              Rejoindre un autre quiz
+            <h1>Quiz ended!</h1>
+            <p className="ended-message">Thanks for playing!</p>
+            <button className="btn-primary" onClick={() => setPhase("join")}>
+              Join another quiz
             </button>
           </div>
-        )
+        );
 
       default:
-        return null
+        return null;
     }
+  };
+
+  if (!isLoggedIn) {
+    return (
+      <div>
+        <ParticipantAuthForm onLoginSuccess={handleLoginSuccess} />
+      </div>
+    );
   }
 
   return (
     <div className="app">
       <header className="app-header">
         <h2>Quiz Player</h2>
-        <span className={`status-badge status-${status}`}>
-          {status === 'connected' ? 'Connecte' : status === 'connecting' ? 'Connexion...' : 'Deconnecte'}
+        <span
+          style={{
+            marginLeft: "auto",
+            display: "flex",
+            gap: "15px",
+            alignItems: "center",
+          }}
+        >
+          <span style={{ fontSize: "14px", color: "#666" }}>
+            Logged in as: <strong>{user?.name}</strong>
+          </span>
+          <button
+            onClick={handleLogout}
+            style={{
+              padding: "8px 12px",
+              backgroundColor: "#ef4444",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "14px",
+            }}
+          >
+            Logout
+          </button>
+          <span className={`status-badge status-${status}`}>
+            {status === "connected"
+              ? "Connected"
+              : status === "connecting"
+                ? "Connecting..."
+                : "Disconnected"}
+          </span>
         </span>
       </header>
-      <main className="app-main">
-        {renderPhase()}
-      </main>
+      <main className="app-main">{renderPhase()}</main>
     </div>
-  )
+  );
 }
-
-export default App
+export default App;

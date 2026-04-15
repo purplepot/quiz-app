@@ -1,51 +1,69 @@
 // ============================================================
-// ScoreScreen - Classement avec position du joueur
-// A IMPLEMENTER : leaderboard avec mise en surbrillance
+// ScoreScreen - Leaderboard with player highlight
+// TO IMPLEMENT: leaderboard with highlighted player
 // ============================================================
 
+import type { LeaderboardEntry } from "@shared/index";
+
 interface ScoreScreenProps {
-  /** Classement trie par score decroissant */
-  rankings: { name: string; score: number }[]
-  /** Nom du joueur actuel (pour le mettre en surbrillance) */
-  playerName: string
+  /** Rankings sorted by descending score */
+  rankings: LeaderboardEntry[];
+  /** Current player name (to highlight it) */
+  playerName: string;
+  /** Callback when player wants to join another quiz */
+  onExit?: () => void;
 }
 
 /**
- * Composant affichant le classement avec la position du joueur en surbrillance.
+ * Component displaying leaderboard with highlighted player position.
  *
- * Ce qu'il faut implementer :
- * - Un titre "Classement" (classe .leaderboard-title)
- * - La liste ordonnee des joueurs (classe .leaderboard)
- * - Chaque joueur est dans un .leaderboard-item
- *   Si c'est le joueur actuel, ajouter aussi la classe .is-me
- * - Afficher pour chaque joueur :
- *   - Son rang (1, 2, 3...) dans .leaderboard-rank
- *   - Son nom dans .leaderboard-name
- *   - Son score dans .leaderboard-score
+ * What to implement:
+ * - A "Leaderboard" title (class .leaderboard-title)
+ * - Ordered list of players (class .leaderboard)
+ * - Each player in a .leaderboard-item
+ *   If it's the current player, also add class .is-me
+ * - For each player display:
+ *   - Rank (1, 2, 3...) in .leaderboard-rank
+ *   - Name in .leaderboard-name
+ *   - Score in .leaderboard-score
  *
- * Classes CSS disponibles : .score-screen, .leaderboard-title, .leaderboard,
+ * Available CSS classes: .score-screen, .leaderboard-title, .leaderboard,
  * .leaderboard-item, .is-me, .leaderboard-rank, .leaderboard-name, .leaderboard-score
  */
-function ScoreScreen({ rankings, playerName }: ScoreScreenProps) {
+function ScoreScreen({ rankings, playerName, onExit }: ScoreScreenProps) {
   return (
     <div className="phase-container score-screen">
-      {/* Titre "Classement" avec .leaderboard-title */}
-      <h1 className="leaderboard-title">Classement</h1>
+      {/* "Leaderboard" title with .leaderboard-title */}
+      <h1 className="leaderboard-title">Leaderboard</h1>
 
       <div className="leaderboard">
-        {/* Pour chaque joueur dans rankings, afficher un .leaderboard-item */}
-        {/* Ajouter la classe .is-me si ranking.name === playerName */}
+        {/* For each player in rankings, render a .leaderboard-item */}
+        {/* Add .is-me class if ranking.name === playerName */}
         {rankings.map((ranking, index) => (
-          <div key={ranking.name} className={`leaderboard-item ${ranking.name === playerName ? 'is-me' : ''}`}>
-            {/* Afficher rang, nom et score */}
-            <span className="leaderboard-rank">{index + 1}</span>
+          <div
+            key={ranking.id}
+            className={`leaderboard-item ${ranking.name === playerName ? "is-me" : ""}`}
+          >
+            {/* Show rank, name, and score */}
+            <span className="leaderboard-rank">
+              {ranking.rank || index + 1}
+            </span>
             <span className="leaderboard-name">{ranking.name}</span>
             <span className="leaderboard-score">{ranking.score} pts</span>
           </div>
         ))}
       </div>
+      {onExit && (
+        <button
+          className="btn-primary"
+          onClick={onExit}
+          style={{ marginTop: "2rem" }}
+        >
+          Join another quiz
+        </button>
+      )}
     </div>
-  )
+  );
 }
 
-export default ScoreScreen
+export default ScoreScreen;

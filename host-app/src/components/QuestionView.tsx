@@ -1,70 +1,87 @@
 // ============================================================
-// QuestionView - Affichage de la question en cours (cote host)
-// A IMPLEMENTER : question, choix, timer, compteur de reponses
+// QuestionView - Display current question (host side)
+// TO IMPLEMENT: question, choices, timer, answer counter
 // ============================================================
 
-import type { QuizQuestion } from '@shared/index'
+import type { QuizQuestion } from "@shared/index";
 
 interface QuestionViewProps {
-  /** La question en cours (sans correctIndex) */
-  question: Omit<QuizQuestion, 'correctIndex'>
-  /** Index de la question (0-based) */
-  index: number
-  /** Nombre total de questions */
-  total: number
-  /** Temps restant en secondes */
-  remaining: number
-  /** Nombre de joueurs ayant repondu */
-  answerCount: number
-  /** Nombre total de joueurs */
-  totalPlayers: number
+  /** Current question (without correctIndex) */
+  question: Omit<QuizQuestion, "correctIndex">;
+  /** Question index (0-based) */
+  index: number;
+  /** Total number of questions */
+  total: number;
+  /** Remaining time in seconds */
+  remaining: number;
+  /** Number of players who answered */
+  answerCount: number;
+  /** Total number of players */
+  totalPlayers: number;
 }
 
 /**
- * Composant affichant la question en cours sur l'ecran du host.
+ * Component that displays the current question on the host screen.
  *
- * Ce qu'il faut implementer :
- * - En-tete avec "Question X / Y" (classe .question-header)
- * - Le timer en cercle (classes .countdown, .countdown-circle)
- *   Ajouter la classe .warning si remaining <= 10, .danger si remaining <= 3
- * - Le texte de la question (classe .question-text)
- * - Les 4 choix dans une grille (classes .choices-grid, .choice-card)
- * - Le compteur de reponses "X / Y reponses" (classe .answer-counter)
+ * What to implement:
+ * - Header with "Question X / Y" (class .question-header)
+ * - Circular timer (classes .countdown, .countdown-circle)
+ *   Add class .warning if remaining <= 10, .danger if remaining <= 3
+ * - Question text (class .question-text)
+ * - 4 choices in a grid (classes .choices-grid, .choice-card)
+ * - Answer counter "X / Y answers" (class .answer-counter)
  *
- * Note : cote host on affiche les choix mais sans interaction
- * (c'est purement visuel pour projeter au mur)
+ * Note: on the host side, choices are displayed without interaction
+ * (purely visual for projection)
  */
-function QuestionView({ question, index, total, remaining, answerCount, totalPlayers }: QuestionViewProps) {
-  const timerClass = remaining <= 3 ? 'danger' : remaining <= 10 ? 'warning' : ''
+function QuestionView({
+  question,
+  index,
+  total,
+  remaining,
+  answerCount,
+  totalPlayers,
+}: QuestionViewProps) {
+  const timerClass =
+    remaining <= 3 ? "danger" : remaining <= 10 ? "warning" : "";
 
   return (
     <div className="phase-container">
-
-      {/* TODO: En-tete "Question {index + 1} / {total}" */}
+      {/* TODO: Header "Question {index + 1} / {total}" */}
       <div className="question-header">
-        <span>Question {index + 1} / {total}</span>
-        <span style={{ color: '#a78bfa', letterSpacing: '0.1em', fontSize: '0.8rem', textTransform: 'uppercase' }}>
-          {question.timerSec}s par question
+        <span>
+          Question {index + 1} / {total}
+        </span>
+        <span
+          style={{
+            color: "#a78bfa",
+            letterSpacing: "0.1em",
+            fontSize: "0.8rem",
+            textTransform: "uppercase",
+          }}
+        >
+          {question.timerSec}s per question
         </span>
       </div>
 
-      {/* TODO: Timer avec .countdown-circle (+ .warning / .danger selon remaining) */}
+      {/* TODO: Timer with .countdown-circle (+ .warning / .danger based on remaining) */}
       <div className="countdown">
-        <div className={`countdown-circle ${timerClass}`}>
-          {remaining}
-        </div>
+        <div className={`countdown-circle ${timerClass}`}>{remaining}</div>
       </div>
 
-      {/* TODO: Texte de la question avec .question-text */}
-      <div className="question-text" style={{
-        borderLeft: '4px solid #7c3aed',
-        paddingLeft: '1rem',
-        textAlign: 'left',
-      }}>
+      {/* TODO: Question text with .question-text */}
+      <div
+        className="question-text"
+        style={{
+          borderLeft: "4px solid #7c3aed",
+          paddingLeft: "1rem",
+          textAlign: "left",
+        }}
+      >
         {question.text}
       </div>
 
-      {/* TODO: Grille des 4 choix avec .choices-grid et .choice-card */}
+      {/* TODO: Grid of 4 choices with .choices-grid and .choice-card */}
       <div className="choices-grid">
         {question.choices.map((choice, i) => (
           <div key={i} className="choice-card">
@@ -73,13 +90,12 @@ function QuestionView({ question, index, total, remaining, answerCount, totalPla
         ))}
       </div>
 
-      {/* TODO: Compteur "{answerCount} / {totalPlayers} reponses" */}
+      {/* TODO: Counter "{answerCount} / {totalPlayers} answers" */}
       <p className="answer-counter">
-        {answerCount} / {totalPlayers} réponses
+        {answerCount} / {totalPlayers} answers
       </p>
-
     </div>
-  )
+  );
 }
 
-export default QuestionView
+export default QuestionView;

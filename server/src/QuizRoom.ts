@@ -1,104 +1,141 @@
-// ============================================================
-// QuizRoom - Logique d'une salle de quiz
-// ============================================================
-
 import WebSocket from "ws";
 import type {
+  AnswerTelemetry,
+  ClientIdentity,
+  PlayerSnapshot,
   QuizPhase,
   QuizQuestion,
   ServerMessage,
 } from "../../packages/shared-types";
-import { send, broadcast } from "./utils";
+import { quizPersistence } from "./persistence";
+import { broadcast, send } from "./utils";
 
-/** Represente un joueur connecte */
 interface Player {
   id: string;
   name: string;
   ws: WebSocket;
+  identity: ClientIdentity;
+  joinedAt: number;
+  suspicionScore: number;
+  flags: Set<string>;
 }
 
 export class QuizRoom {
-  /** Identifiant unique de la salle */
   readonly id: string;
 
-  /** Code a 6 caracteres que les joueurs utilisent pour rejoindre */
   readonly code: string;
 
-  /** Phase actuelle du quiz */
   phase: QuizPhase = "lobby";
 
-  /** WebSocket du host (presentateur) */
   hostWs: WebSocket | null = null;
 
-  /** Map des joueurs : playerId -> Player */
   players: Map<string, Player> = new Map();
 
-  /** Liste des questions du quiz */
   questions: QuizQuestion[] = [];
 
-  /** Titre du quiz */
-  title: string = "";
+  title = "";
 
-  /** Index de la question en cours (0-based) */
-  currentQuestionIndex: number = -1;
+  currentQuestionIndex = -1;
 
-  /** Map des reponses pour la question en cours : playerId -> choiceIndex */
   answers: Map<string, number> = new Map();
 
-  /** Map des scores cumules : playerId -> score total */
   scores: Map<string, number> = new Map();
 
-  /** Timer ID pour le compte a rebours (pour pouvoir l'annuler) */
   timerId: ReturnType<typeof setInterval> | null = null;
 
-  /** Temps restant pour la question en cours */
-  remaining: number = 0;
+  remaining = 0;
+
+  questionStartedAt = 0;
 
   constructor(id: string, code: string) {
     this.id = id;
     this.code = code;
   }
 
-  /**
-   * Ajoute un joueur a la salle.
-   */
-  addPlayer(name: string, ws: WebSocket): string {
-    // Generer un ID unique
+  addPlayer(
+    name: string,
+    ws: WebSocket,
+    identity: ClientIdentity,
+    joinedAt: number,
+  ): string {
     const playerId = crypto.randomUUID();
-    // Creer le Player et l'ajouter
-    const player: Player = { id: playerId, name, ws };
-    this.players.set(playerId, player);
+    const player: Player = {
+      id: playerId,
+      name,
+      ws,
+      identity,
+      joinedAt,
+      suspicionScore: 0,
+      flags: new Set<string>(),
+    };
 
-    // Initialiser le score a 0
+    const sameDeviceOtherName = Array.from(this.players.values()).find(
+      (p) => p.identity.deviceId === identity.deviceId && p.name !== name,
+    );
+
+    if (sameDeviceOtherName) {
+      player.suspicionScore += 2;
+      player.flags.add("same_device_multiple_names");
+      sameDeviceOtherName.suspicionScore += 2;
+      sameDeviceOtherName.flags.add("same_device_multiple_names");
+      void quizPersistence
+        .updateSuspicion({
+          quizId: this.id,
+          playerId: sameDeviceOtherName.id,
+          suspicionScore: sameDeviceOtherName.suspicionScore,
+          flags: Array.from(sameDeviceOtherName.flags),
+        })
+        .catch((error) =>
+          console.error("[Mongo] updateSuspicion failed", error),
+        );
+    }
+
+    this.players.set(playerId, player);
     this.scores.set(playerId, 0);
 
-    // Envoyer 'joined' a tous les clients
-    const playerNames = Array.from(this.players.values()).map(p => p.name);
-    this.broadcastToAll({
-      type: 'joined',
-      playerId,
-      players: playerNames
-    });
+    void quizPersistence
+      .upsertPlayer({
+        quizId: this.id,
+        playerId,
+        name,
+        identity,
+        joinedAt,
+      })
+      .catch((error) => console.error("[Mongo] upsertPlayer failed", error));
 
-    // Retourner l'ID du joueur
+    // Increment participant count in quiz
+    void quizPersistence
+      .incrementParticipantCount(this.id)
+      .catch((error) =>
+        console.error("[Mongo] incrementParticipantCount failed", error),
+      );
+
+    void quizPersistence
+      .updateSuspicion({
+        quizId: this.id,
+        playerId,
+        suspicionScore: player.suspicionScore,
+        flags: Array.from(player.flags),
+      })
+      .catch((error) => console.error("[Mongo] updateSuspicion failed", error));
+
+    this.broadcastJoinedState(playerId);
+
     return playerId;
   }
 
-  /**
-   * Demarre le quiz.
-   */
   start(): void {
-    if (this.phase !== 'lobby' || this.players.size === 0) return;
+    if (this.phase !== "lobby" || this.players.size === 0) return;
+    void quizPersistence
+      .updatePhase(this.id, "question", Date.now())
+      .catch((error) => console.error("[Mongo] updatePhase failed", error));
     this.nextQuestion();
   }
 
-  /**
-   * Passe a la question suivante.
-   */
   nextQuestion(): void {
     if (this.timerId) clearInterval(this.timerId);
 
-    this.currentQuestionIndex++;
+    this.currentQuestionIndex += 1;
 
     if (this.currentQuestionIndex >= this.questions.length) {
       this.broadcastLeaderboard();
@@ -106,27 +143,117 @@ export class QuizRoom {
     }
 
     this.answers.clear();
-    this.phase = 'question';
-    this.broadcastQuestion();
+    this.phase = "question";
+    this.questionStartedAt = Date.now();
 
     const question = this.questions[this.currentQuestionIndex];
     this.remaining = question.timerSec;
+
+    this.broadcastToAll({
+      type: "question",
+      question: {
+        id: question.id,
+        text: question.text,
+        choices: question.choices,
+        timerSec: question.timerSec,
+      },
+      index: this.currentQuestionIndex,
+      total: this.questions.length,
+      startedAt: this.questionStartedAt,
+    });
+
+    void quizPersistence
+      .logEvent(this.id, "question_started", this.questionStartedAt, {
+        questionId: question.id,
+        questionIndex: this.currentQuestionIndex,
+      })
+      .catch((error) => console.error("[Mongo] logEvent failed", error));
+
     this.timerId = setInterval(() => this.tick(), 1000);
   }
 
-  /**
-   * Traite la reponse d'un joueur.
-   */
-  handleAnswer(playerId: string, choiceIndex: number): void {
-    if (this.phase !== 'question') return;
+  handleAnswer(
+    playerId: string,
+    questionId: string,
+    choiceIndex: number,
+    telemetry: AnswerTelemetry,
+  ): void {
+    if (this.phase !== "question") return;
     if (this.answers.has(playerId)) return;
+
+    const player = this.players.get(playerId);
+    if (!player) return;
+
+    const question = this.questions[this.currentQuestionIndex];
+    if (question.id !== questionId) {
+      player.suspicionScore += 2;
+      player.flags.add("answer_for_wrong_question");
+      void quizPersistence
+        .updateSuspicion({
+          quizId: this.id,
+          playerId,
+          suspicionScore: player.suspicionScore,
+          flags: Array.from(player.flags),
+        })
+        .catch((error) =>
+          console.error("[Mongo] updateSuspicion failed", error),
+        );
+      return;
+    }
+
+    const isCorrect = choiceIndex === question.correctIndex;
 
     this.answers.set(playerId, choiceIndex);
 
-    const question = this.questions[this.currentQuestionIndex];
-    if (choiceIndex === question.correctIndex) {
+    if (telemetry.timeTakenMs < 600) {
+      player.suspicionScore += 1;
+      player.flags.add("answer_too_fast");
+    }
+    if (telemetry.tabSwitchCount > 2) {
+      player.suspicionScore += 2;
+      player.flags.add("high_tab_switch_count");
+    }
+    if (telemetry.submittedAt < this.questionStartedAt) {
+      player.suspicionScore += 3;
+      player.flags.add("invalid_answer_timestamp");
+    }
+    if (!telemetry.focusedAtSubmit) {
+      player.suspicionScore += 1;
+      player.flags.add("unfocused_submit");
+    }
+    if (telemetry.timeTakenMs < 0) {
+      player.suspicionScore += 2;
+      player.flags.add("negative_answer_time");
+    }
+
+    void quizPersistence
+      .updateSuspicion({
+        quizId: this.id,
+        playerId,
+        suspicionScore: player.suspicionScore,
+        flags: Array.from(player.flags),
+      })
+      .catch((error) => console.error("[Mongo] updateSuspicion failed", error));
+
+    void quizPersistence
+      .recordAnswer({
+        quizId: this.id,
+        questionId: question.id,
+        questionIndex: this.currentQuestionIndex,
+        playerId,
+        choiceIndex,
+        isCorrect,
+        submittedAt: telemetry.submittedAt,
+        timeTakenMs: telemetry.timeTakenMs,
+        tabSwitchCount: telemetry.tabSwitchCount,
+        remainingAtAnswer: this.remaining,
+      })
+      .catch((error) => console.error("[Mongo] recordAnswer failed", error));
+
+    if (isCorrect) {
       const currentScore = this.scores.get(playerId) || 0;
-      const points = 1000 + Math.round(500 * (this.remaining / question.timerSec));
+      const points =
+        1000 + Math.round(500 * (this.remaining / question.timerSec));
       this.scores.set(playerId, currentScore + points);
     }
 
@@ -135,103 +262,157 @@ export class QuizRoom {
     }
   }
 
-  /**
-   * Appelee toutes les secondes par le timer.
-   */
+  removePlayer(playerId: string): void {
+    if (!this.players.has(playerId)) return;
+
+    this.players.delete(playerId);
+    this.answers.delete(playerId);
+    this.scores.delete(playerId);
+
+    void quizPersistence
+      .markPlayerLeft(this.id, playerId, Date.now())
+      .catch((error) => console.error("[Mongo] markPlayerLeft failed", error));
+
+    this.broadcastJoinedState(playerId);
+
+    if (this.phase === "question" && this.answers.size === this.players.size) {
+      this.timeUp();
+    }
+  }
+
   private tick(): void {
-    this.remaining--;
-    this.broadcastToAll({ type: 'tick', remaining: this.remaining });
+    this.remaining -= 1;
+    this.broadcastToAll({ type: "tick", remaining: this.remaining });
 
     if (this.remaining <= 0) {
       this.timeUp();
     }
   }
 
-  /**
-   * Appelee quand le temps est ecoule.
-   */
   private timeUp(): void {
     if (this.timerId) {
       clearInterval(this.timerId);
       this.timerId = null;
     }
-    this.phase = 'results';
+
+    this.phase = "results";
+    void quizPersistence
+      .updatePhase(this.id, "results", Date.now())
+      .catch((error) => console.error("[Mongo] updatePhase failed", error));
+
     this.broadcastResults();
   }
 
-  /**
-   * Retourne la liste de tous les WebSocket des joueurs.
-   */
-  private getPlayerWsList(): WebSocket[] {
-    return Array.from(this.players.values()).map(p => p.ws);
-  }
-
-  /**
-   * Envoie un message a tous les clients : host + tous les joueurs.
-   */
-  private broadcastToAll(message: ServerMessage): void {
-    if (this.hostWs) send(this.hostWs, message);
-    broadcast(this.getPlayerWsList(), message);
-  }
-
-  /**
-   * Envoie la question en cours a tous les clients.
-   */
-  private broadcastQuestion(): void {
-    const question = this.questions[this.currentQuestionIndex];
-    const { correctIndex, ...questionWithoutAnswer } = question;
-
-    this.broadcastToAll({
-      type: 'question',
-      question: questionWithoutAnswer,
-      index: this.currentQuestionIndex,
-      total: this.questions.length
-    });
-  }
-
-  /**
-   * Envoie les resultats de la question en cours.
-   */
   private broadcastResults(): void {
     const question = this.questions[this.currentQuestionIndex];
-    const distribution = question.choices.map((_, index) => {
-      return Array.from(this.answers.values()).filter(a => a === index).length;
+    const distribution = question.choices.map(
+      (_, index) =>
+        Array.from(this.answers.values()).filter((answer) => answer === index)
+          .length,
+    );
+
+    const scoresByPlayerId: Record<string, number> = {};
+    this.players.forEach((player) => {
+      scoresByPlayerId[player.id] = this.scores.get(player.id) || 0;
     });
 
-    const scores: Record<string, number> = {};
-    this.players.forEach(p => {
-      scores[p.name] = this.scores.get(p.id) || 0;
-    });
+    void quizPersistence
+      .updateScores(this.id, this.getPlayerSnapshot())
+      .catch((error) => console.error("[Mongo] updateScores failed", error));
 
     this.broadcastToAll({
-      type: 'results',
+      type: "results",
+      questionId: question.id,
       correctIndex: question.correctIndex,
       distribution,
-      scores
+      scoresByPlayerId,
+      endedAt: Date.now(),
     });
   }
 
-  /**
-   * Envoie le classement final.
-   */
   broadcastLeaderboard(): void {
     const rankings = Array.from(this.players.values())
-      .map(p => ({
-        name: p.name,
-        score: this.scores.get(p.id) || 0
+      .map((player) => ({
+        id: player.id,
+        name: player.name,
+        score: this.scores.get(player.id) || 0,
+        suspicionScore: player.suspicionScore,
+        flags: Array.from(player.flags),
+        joinedAt: player.joinedAt,
       }))
       .sort((a, b) => b.score - a.score);
 
-    this.phase = 'leaderboard';
-    this.broadcastToAll({ type: 'leaderboard', rankings });
+    const ranked = rankings.map((entry, index) => ({
+      ...entry,
+      rank: index + 1,
+    }));
+
+    this.phase = "leaderboard";
+    void quizPersistence
+      .updatePhase(this.id, "leaderboard", Date.now())
+      .catch((error) => console.error("[Mongo] updatePhase failed", error));
+    void quizPersistence
+      .logEvent(this.id, "leaderboard", Date.now(), {
+        rankings: ranked,
+      })
+      .catch((error) => console.error("[Mongo] logEvent failed", error));
+
+    this.broadcastToAll({ type: "leaderboard", rankings: ranked });
   }
 
-  /**
-   * Termine le quiz.
-   */
   end(): void {
     if (this.timerId) clearInterval(this.timerId);
-    this.phase = 'ended';
-    this.broadcastToAll({ type: 'ended' });
+
+    this.phase = "ended";
+    const endedAt = Date.now();
+
+    void quizPersistence
+      .updatePhase(this.id, "ended", endedAt)
+      .catch((error) => console.error("[Mongo] updatePhase failed", error));
+    void quizPersistence
+      .logEvent(this.id, "quiz_ended", endedAt)
+      .catch((error) => console.error("[Mongo] logEvent failed", error));
+
+    this.broadcastToAll({ type: "ended", endedAt });
+  }
+
+  private broadcastToAll(message: ServerMessage): void {
+    if (this.hostWs) send(this.hostWs, message);
+    broadcast(
+      Array.from(this.players.values()).map((player) => player.ws),
+      message,
+    );
+  }
+
+  private getPlayerSnapshot(): PlayerSnapshot[] {
+    return Array.from(this.players.values()).map((player) => ({
+      id: player.id,
+      name: player.name,
+      joinedAt: player.joinedAt,
+      score: this.scores.get(player.id) || 0,
+      suspicionScore: player.suspicionScore,
+      flags: Array.from(player.flags),
+    }));
+  }
+
+  private broadcastJoinedState(changedPlayerId: string): void {
+    const players = this.getPlayerSnapshot();
+    if (this.hostWs) {
+      send(this.hostWs, {
+        type: "joined",
+        playerId: changedPlayerId,
+        players,
+        quizId: this.id,
+      });
+    }
+
+    for (const player of this.players.values()) {
+      send(player.ws, {
+        type: "joined",
+        playerId: player.id,
+        players,
+        quizId: this.id,
+      });
+    }
   }
 }

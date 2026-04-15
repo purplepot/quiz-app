@@ -1,41 +1,43 @@
 // ============================================================
-// WaitingLobby - Ecran d'attente pour les joueurs
-// A IMPLEMENTER : message d'attente et liste des joueurs
+// WaitingLobby - Waiting screen for players
+// TO IMPLEMENT: waiting message and player list
 // ============================================================
 
+import type { PlayerSnapshot } from "@shared/index";
+
 interface WaitingLobbyProps {
-  /** Liste des noms de joueurs connectes */
-  players: string[]
+  /** List of connected player names */
+  players: PlayerSnapshot[];
 }
 
 /**
- * Composant ecran d'attente affiche cote joueur apres avoir rejoint.
+ * Waiting-screen component shown on the player side after joining.
  *
- * Ce qu'il faut implementer :
- * - Un message "En attente du host..." (classe .waiting-message)
- * - Le nombre de joueurs connectes
- * - La liste des joueurs (puces avec classe .player-chip dans un .player-list)
+ * What to implement:
+ * - A "Waiting for host..." message (class .waiting-message)
+ * - Number of connected players
+ * - Player list (chips with class .player-chip inside .player-list)
  *
- * Classes CSS disponibles : .waiting-container, .waiting-message,
+ * Available CSS classes: .waiting-container, .waiting-message,
  * .player-list, .player-chip
  */
 function WaitingLobby({ players }: WaitingLobbyProps) {
   return (
     <div className="phase-container waiting-container">
-      {/* Message "En attente du host..." avec .waiting-message */}
-      <p className="waiting-message">En attente du host...</p>
-      {/* Nombre de joueurs */}
-      <p className="waiting-message">{players.length} joueur(s) connecté(s) !</p>
-      {/* Liste des joueurs avec .player-list et .player-chip */}
+      {/* Message "Waiting for host..." with .waiting-message */}
+      <p className="waiting-message">Waiting for host...</p>
+      {/* Number of players */}
+      <p className="waiting-message">{players.length} player(s) connected!</p>
+      {/* Player list with .player-list and .player-chip */}
       <ul className="player-list">
-        {players.map((player, index) => (
-          <li key={index} className="player-chip">
-            {player}
+        {players.map((player) => (
+          <li key={player.id} className="player-chip">
+            {player.name}
           </li>
         ))}
       </ul>
     </div>
-  )
+  );
 }
 
-export default WaitingLobby
+export default WaitingLobby;

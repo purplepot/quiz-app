@@ -1,42 +1,64 @@
-# Quiz App - WebSocket en temps reel
+# Quiz App - Real-time WebSocket
 
-Un quiz interactif en temps reel inspire de Kahoot, construit avec WebSocket, React et TypeScript.
+An interactive real-time quiz inspired by Kahoot, built with WebSocket, React, and TypeScript.
 
-## Prerequis
+## Prerequisites
 
 - **Node.js >= 18**
-- **npm** (inclus avec Node.js)
+- **npm** (included with Node.js)
+- **MongoDB local instance** (default URI: `mongodb://127.0.0.1:27017`)
 
-## Structure du projet
+## Persistence and Audit Tracking
 
-```
+The server now persists quiz runs and player activity in MongoDB so each session is traceable.
+
+Stored collections:
+
+- `quizzes`: quiz metadata, creator identity, phases, and timestamps
+- `players`: player identity, join/leave times, score, suspicion score, and flags
+- `answers`: answer history per player and question, including timing telemetry
+- `events`: host actions and quiz lifecycle events (start/next/end/leaderboard)
+
+Suspicion signals currently tracked:
+
+- unusually fast answers
+- many tab switches during a question
+- invalid timestamps
+- submit while tab is unfocused
+- same device used with multiple names
+
+These are risk indicators, not automatic cheating verdicts.
+
+## Project Structure
+
+```text
 quiz-app/
 ├── packages/
-│   └── shared-types/       # Types TypeScript partages (COMPLET)
-├── server/                  # Serveur WebSocket Node.js
+│   └── shared-types/       # Shared TypeScript types (COMPLETE)
+├── server/                 # Node.js WebSocket server
 │   └── src/
-│       ├── utils.ts         # Utilitaires d'envoi WS (COMPLET)
-│       ├── QuizRoom.ts      # Logique d'une salle de quiz (A IMPLEMENTER)
-│       └── index.ts         # Point d'entree du serveur (A IMPLEMENTER)
-├── host-app/                # Application React pour le presentateur
+│       ├── utils.ts        # WS send utilities (COMPLETE)
+│       ├── QuizRoom.ts     # Quiz room logic (TO IMPLEMENT)
+│       └── index.ts        # Server entry point (TO IMPLEMENT)
+├── host-app/               # React app for the presenter
 │   └── src/
 │       ├── hooks/
-│       │   └── useWebSocket.ts   # Hook WebSocket (COMPLET)
-│       ├── App.tsx               # Routeur principal (A IMPLEMENTER)
-│       ├── App.css               # Styles (COMPLET)
-│       └── components/           # Composants UI (A IMPLEMENTER)
+│       │   └── useWebSocket.ts   # WebSocket hook (COMPLETE)
+│       ├── App.tsx               # Main router (TO IMPLEMENT)
+│       ├── App.css               # Styles (COMPLETE)
+│       └── components/           # UI components (TO IMPLEMENT)
 │           ├── CreateQuiz.tsx
 │           ├── Lobby.tsx
 │           ├── QuestionView.tsx
 │           ├── Results.tsx
 │           └── Leaderboard.tsx
-└── player-app/              # Application React pour les joueurs
+└── player-app/             # React app for players
     └── src/
         ├── hooks/
-        │   └── useWebSocket.ts   # Hook WebSocket (COMPLET)
-        ├── App.tsx               # Routeur principal (A IMPLEMENTER)
-        ├── App.css               # Styles (COMPLET)
-        └── components/           # Composants UI (A IMPLEMENTER)
+        │   └── useWebSocket.ts   # WebSocket hook (COMPLETE)
+        ├── App.tsx               # Main router (TO IMPLEMENT)
+        ├── App.css               # Styles (COMPLETE)
+        └── components/           # UI components (TO IMPLEMENT)
             ├── JoinScreen.tsx
             ├── WaitingLobby.tsx
             ├── AnswerScreen.tsx
@@ -44,60 +66,72 @@ quiz-app/
             └── ScoreScreen.tsx
 ```
 
-## Ce qui est COMPLET (fourni)
+## What Is COMPLETE (Provided)
 
-- **Types partages** (`packages/shared-types/`) : toutes les interfaces et types pour les messages WebSocket
-- **Utilitaires serveur** (`server/src/utils.ts`) : fonctions `send()`, `broadcast()`, `generateQuizCode()`
-- **Hook useWebSocket** (`host-app/src/hooks/useWebSocket.ts` et `player-app/src/hooks/useWebSocket.ts`) : hook React complet avec auto-reconnexion
-- **CSS** (`host-app/src/App.css` et `player-app/src/App.css`) : styles complets avec theme sombre
-- **Configuration** : tous les fichiers `package.json`, `tsconfig.json`, `vite.config.ts`
+- **Shared types** (`packages/shared-types/`): all interfaces and message types for WebSocket communication
+- **Server utilities** (`server/src/utils.ts`): `send()`, `broadcast()`, `generateQuizCode()`
+- **useWebSocket hook** (`host-app/src/hooks/useWebSocket.ts` and `player-app/src/hooks/useWebSocket.ts`): complete React hook with auto-reconnect
+- **CSS** (`host-app/src/App.css` and `player-app/src/App.css`): complete styles
+- **Configuration**: all `package.json`, `tsconfig.json`, and `vite.config.ts` files
 
-## Ce qui est A IMPLEMENTER
+## What Is TO IMPLEMENT
 
-Chaque fichier a implementer contient des squelettes types avec des commentaires `TODO` expliquant ce qu'il faut faire.
+Each file to implement contains typed skeletons with `TODO` comments.
 
-### Serveur (`server/`)
-- `QuizRoom.ts` : la logique metier d'une salle de quiz (demarrage, questions, reponses, scores)
-- `index.ts` : le routage des messages WebSocket vers les bonnes methodes
+### Server (`server/`)
+
+- `QuizRoom.ts`: quiz room business logic (start, questions, answers, scores)
+- `index.ts`: route WebSocket messages to the correct methods
 
 ### Host App (`host-app/`)
-- `App.tsx` : gestion de l'etat et routage par phase
-- `CreateQuiz.tsx` : formulaire de creation de quiz
-- `Lobby.tsx` : salle d'attente avec code et liste des joueurs
-- `QuestionView.tsx` : affichage de la question en cours
-- `Results.tsx` : barres animees des resultats
-- `Leaderboard.tsx` : classement des joueurs
+
+- `App.tsx`: state management and phase routing
+- `CreateQuiz.tsx`: quiz creation form
+- `Lobby.tsx`: waiting room with code and players list
+- `QuestionView.tsx`: current question display
+- `Results.tsx`: animated result bars
+- `Leaderboard.tsx`: player ranking
 
 ### Player App (`player-app/`)
-- `App.tsx` : gestion de l'etat et routage par phase
-- `JoinScreen.tsx` : formulaire pour rejoindre un quiz
-- `WaitingLobby.tsx` : ecran d'attente
-- `AnswerScreen.tsx` : boutons de reponse colores
-- `FeedbackScreen.tsx` : retour correct/incorrect
-- `ScoreScreen.tsx` : classement avec position du joueur
+
+- `App.tsx`: state management and phase routing
+- `JoinScreen.tsx`: form to join a quiz
+- `WaitingLobby.tsx`: waiting screen
+- `AnswerScreen.tsx`: colored answer buttons
+- `FeedbackScreen.tsx`: correct/incorrect feedback
+- `ScoreScreen.tsx`: ranking with player highlight
 
 ## Installation
 
 ```bash
-# 1. Installer les dependances du serveur
+# 1. Install server dependencies
 cd server
 npm install
 
-# 2. Installer les dependances du host-app
+# 2. Install host-app dependencies
 cd ../host-app
 npm install
 
-# 3. Installer les dependances du player-app
+# 3. Install player-app dependencies
 cd ../player-app
 npm install
+
+# 4. Ensure MongoDB is running locally
+# Example on Windows if MongoDB is installed as a service:
+# net start MongoDB
 ```
 
-## Demarrage
+Optional server env vars:
 
-Ouvrez **3 terminaux** :
+- `MONGO_URI` (default `mongodb://127.0.0.1:27017`)
+- `MONGO_DB_NAME` (default `quiz_app`)
+
+## Run
+
+Open **3 terminals**:
 
 ```bash
-# Terminal 1 - Serveur WebSocket (port 3001)
+# Terminal 1 - WebSocket Server (port 3001)
 cd server
 npm run dev
 
@@ -110,46 +144,49 @@ cd player-app
 npm run dev
 ```
 
-## Repartition de l'equipe (3 personnes)
+## Team Split (3 People)
 
-### Personne 1 : Serveur (`server/`)
-- Implementer `QuizRoom.ts` : toute la logique metier
-- Implementer `index.ts` : le routage des messages
-- **Points cles** : gestion du timer, calcul des scores, cycle de vie d'une partie
+### Person 1: Server (`server/`)
 
-### Personne 2 : Host App (`host-app/`)
-- Implementer `App.tsx` : traitement des messages serveur et gestion des phases
-- Implementer les 5 composants dans `components/`
-- **Points cles** : formulaire dynamique, affichage du code quiz, barres animees
+- Implement `QuizRoom.ts`: full business logic
+- Implement `index.ts`: message routing
+- **Key points**: timer management, score calculation, game lifecycle
 
-### Personne 3 : Player App (`player-app/`)
-- Implementer `App.tsx` : traitement des messages serveur et gestion des phases
-- Implementer les 5 composants dans `components/`
-- **Points cles** : formulaire de connexion, boutons colores, retour visuel
+### Person 2: Host App (`host-app/`)
 
-## Flux de communication
+- Implement `App.tsx`: server message handling and phase transitions
+- Implement the 5 components in `components/`
+- **Key points**: dynamic form, quiz code display, animated bars
 
-```
-Host App                    Serveur                     Player App
+### Person 3: Player App (`player-app/`)
+
+- Implement `App.tsx`: server message handling and phase transitions
+- Implement the 5 components in `components/`
+- **Key points**: join form, colored answer buttons, visual feedback
+
+## Communication Flow
+
+```text
+Host App                    Server                      Player App
    |                          |                            |
    |-- host:create ---------->|                            |
-   |<-- sync (lobby) --------|                            |
-   |                          |<------ join --------------|
-   |<-- joined ---------------|------- joined ----------->|
+   |<-- sync (lobby) ---------|                            |
+   |                          |<------ join ---------------|
+   |<-- joined ---------------|------- joined ------------>|
    |-- host:start ----------->|                            |
    |<-- question -------------|------- question ---------->|
-   |                          |<------ answer ------------|
+   |                          |<------ answer -------------|
    |<-- tick -----------------|------- tick -------------->|
-   |<-- results ---------------|------- results ---------->|
-   |-- host:next ------------->|                            |
+   |<-- results --------------|------- results ----------->|
+   |-- host:next ------------>|                            |
    |<-- question -------------|------- question ---------->|
    |   ...                    |   ...                      |
-   |-- host:end -------------->|                            |
-   |<-- ended -----------------|------- ended ------------>|
+   |-- host:end ------------->|                            |
+   |<-- ended ----------------|------- ended ------------->|
 ```
 
-## Calcul des scores (suggestion)
+## Score Calculation (Suggestion)
 
-- Reponse correcte : 1000 points de base
-- Bonus de rapidite : jusqu'a +500 points selon le temps restant
-- Formule : `score = 1000 + Math.round(500 * (remaining / timerSec))`
+- Correct answer: 1000 base points
+- Speed bonus: up to +500 points based on remaining time
+- Formula: `score = 1000 + Math.round(500 * (remaining / timerSec))`

@@ -4,11 +4,13 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix host-app\" \"npm run dev --prefix player-app\""
   },
   "dependencies": {},
   "devDependencies": {
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "concurrently": "^8.2.2"
   },
   "private": true
 }

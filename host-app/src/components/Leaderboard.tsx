@@ -1,65 +1,90 @@
 // ============================================================
-// Leaderboard - Classement des joueurs
-// A IMPLEMENTER : liste triee avec scores
+// Leaderboard - Player rankings
+// TO IMPLEMENT: sorted list with scores
 // ============================================================
 
+import type { LeaderboardEntry } from "@shared/index";
+
 interface LeaderboardProps {
-  /** Classement trie par score decroissant */
-  rankings: { name: string; score: number }[]
+  /** Rankings sorted by descending score */
+  rankings: LeaderboardEntry[];
+  /** Callback to exit the leaderboard */
+  onExit?: () => void;
 }
 
 /**
- * Composant affichant le classement des joueurs.
+ * Component showing player rankings.
  *
- * Ce qu'il faut implementer :
- * - Un titre "Classement" (classe .leaderboard-title)
- * - Une liste ordonnee des joueurs (classe .leaderboard)
- * - Chaque joueur affiche (classe .leaderboard-item) :
- *   - Son rang (1, 2, 3...) dans .leaderboard-rank
- *   - Son nom dans .leaderboard-name
- *   - Son score dans .leaderboard-score
- * - Les 3 premiers ont des styles speciaux via :nth-child (deja dans le CSS)
+ * What to implement:
+ * - A "Leaderboard" title (class .leaderboard-title)
+ * - An ordered list of players (class .leaderboard)
+ * - Each player shows (class .leaderboard-item):
+ *   - Rank (1, 2, 3...) in .leaderboard-rank
+ *   - Name in .leaderboard-name
+ *   - Score in .leaderboard-score
+ * - Top 3 have special styles via :nth-child (already in CSS)
  *
- * Note : les rankings sont deja tries par score decroissant
+ * Note: rankings are already sorted by descending score
  */
 
-const MEDALS = ['🥇', '🥈', '🥉']
+const MEDALS = ["🥇", "🥈", "🥉"];
 
-function Leaderboard({ rankings }: LeaderboardProps) {
+function Leaderboard({ rankings, onExit }: LeaderboardProps) {
   return (
     <div className="phase-container">
-
-      {/* TODO: Titre "Classement" avec .leaderboard-title */}
-      <h2 className="leaderboard-title" style={{ letterSpacing: '0.15em', textTransform: 'uppercase' }}>
-        Classement
+      {/* TODO: "Leaderboard" title with .leaderboard-title */}
+      <h2
+        className="leaderboard-title"
+        style={{ letterSpacing: "0.15em", textTransform: "uppercase" }}
+      >
+        Leaderboard
       </h2>
 
       <div className="leaderboard">
-        {/* TODO: Pour chaque joueur dans rankings, afficher un .leaderboard-item */}
+        {/* TODO: For each player in rankings, render a .leaderboard-item */}
         {rankings.map((player, i) => (
-          <div key={player.name} className="leaderboard-item">
-
-            {/* TODO: Afficher rang, nom et score */}
+          <div key={player.id} className="leaderboard-item">
+            {/* TODO: Show rank, name, and score */}
             <span className="leaderboard-rank">
-              {i < 3 ? MEDALS[i] : i + 1}
+              {i < 3 ? MEDALS[i] : player.rank}
             </span>
 
             <span className="leaderboard-name">{player.name}</span>
 
             <span className="leaderboard-score">{player.score} pts</span>
-
           </div>
         ))}
 
         {rankings.length === 0 && (
-          <p style={{ textAlign: 'center', color: '#94a3b8', marginTop: '1rem' }}>
-            Aucun joueur
+          <p
+            style={{ textAlign: "center", color: "#94a3b8", marginTop: "1rem" }}
+          >
+            No players
           </p>
         )}
       </div>
 
+      {onExit && (
+        <button
+          onClick={onExit}
+          style={{
+            marginTop: "2rem",
+            padding: "0.75rem 1.5rem",
+            backgroundColor: "#6366f1",
+            color: "white",
+            border: "none",
+            borderRadius: "6px",
+            fontSize: "1rem",
+            fontWeight: "600",
+            cursor: "pointer",
+            transition: "background-color 0.3s ease",
+          }}
+        >
+          Back to Quizzes
+        </button>
+      )}
     </div>
-  )
+  );
 }
 
-export default Leaderboard
+export default Leaderboard;

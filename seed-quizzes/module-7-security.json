@@ -1,0 +1,126 @@
+{
+  "moduleId": 7,
+  "title": "Module 7",
+  "questions": [
+    {
+      "id": "m7q1",
+      "text": "What is the main goal of network security?",
+      "choices": [
+        "Speed optimization",
+        "Protect data confidentiality, integrity, availability",
+        "Reduce latency",
+        "Increase bandwidth"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m7q2",
+      "text": "What does encryption do?",
+      "choices": [
+        "Increases speed",
+        "Converts plaintext to ciphertext",
+        "Reduces packet size",
+        "Improves routing"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m7q3",
+      "text": "What is symmetric encryption?",
+      "choices": [
+        "Different keys for encryption/decryption",
+        "Same key for both",
+        "Public key system",
+        "No key needed"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m7q4",
+      "text": "What is asymmetric encryption?",
+      "choices": [
+        "Same key",
+        "Two different keys (public, private)",
+        "Hardware-based",
+        "Faster than symmetric"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m7q5",
+      "text": "What is a digital signature used for?",
+      "choices": [
+        "Data encryption",
+        "Message authentication and non-repudiation",
+        "Compressing data",
+        "Speeding transmission"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m7q6",
+      "text": "What does SSL/TLS provide?",
+      "choices": [
+        "Local network speed",
+        "Secure communication over internet",
+        "Packet filtering",
+        "IP translation"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m7q7",
+      "text": "What is a firewall?",
+      "choices": [
+        "Network software",
+        "Device/software controlling traffic",
+        "Encryption tool",
+        "Routing protocol"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m7q8",
+      "text": "What is a virtual private network (VPN)?",
+      "choices": [
+        "Public network",
+        "Encrypted tunnel through public network",
+        "Private company network",
+        "Wireless network"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m7q9",
+      "text": "What is intrusion detection?",
+      "choices": [
+        "Speed monitoring",
+        "Detecting unauthorized network access",
+        "Data compression",
+        "Packet fragmentation"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m7q10",
+      "text": "What is the CIA triad in security?",
+      "choices": [
+        "Confidentiality, Integrity, Availability",
+        "Control, Investigation, Audit",
+        "Cipher, Identity, Authentication",
+        "Compliance, Internet, Access"
+      ],
+      "correctIndex": 0,
+      "timerSec": 15
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "moduleId": 4,
+  "title": "Module 4",
+  "questions": [
+    {
+      "id": "m4q11",
+      "text": "What is the purpose of TCP sequence numbers?",
+      "choices": [
+        "Identify packets",
+        "Track order of packets",
+        "Error detection",
+        "Encryption"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m4q12",
+      "text": "What is the FIN flag used for?",
+      "choices": [
+        "Start connection",
+        "End connection",
+        "Error",
+        "Data confirmed"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m4q13",
+      "text": "What does ACK mean in TCP?",
+      "choices": ["Attack", "Acknowledge", "Accept", "Activate"],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m4q14",
+      "text": "Which window size is used in TCP?",
+      "choices": ["Fixed", "Variable (adaptive)", "Zero", "Infinite"],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m4q15",
+      "text": "What is retransmission timeout based on?",
+      "choices": [
+        "Fixed time",
+        "RTT (Round Trip Time)",
+        "Hop count",
+        "Packet size"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m4q16",
+      "text": "What is Nagle algorithm for?",
+      "choices": [
+        "Reducing small packets",
+        "Increasing throughput",
+        "Error correction",
+        "Congestion handling"
+      ],
+      "correctIndex": 0,
+      "timerSec": 15
+    },
+    {
+      "id": "m4q17",
+      "text": "What does UDP provide?",
+      "choices": [
+        "Reliable delivery",
+        "Ordered delivery",
+        "Best-effort delivery",
+        "Encrypted delivery"
+      ],
+      "correctIndex": 2,
+      "timerSec": 15
+    },
+    {
+      "id": "m4q18",
+      "text": "Which is used for real-time video?",
+      "choices": ["TCP", "UDP", "ICMP", "IGMP"],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m4q19",
+      "text": "What is MSS in TCP?",
+      "choices": [
+        "Maximum Segment Size",
+        "Minimum Send Size",
+        "Maximum Send Speed",
+        "Minimum Segment Size"
+      ],
+      "correctIndex": 0,
+      "timerSec": 15
+    },
+    {
+      "id": "m4q20",
+      "text": "How many bytes is a UDP header?",
+      "choices": ["8 bytes", "16 bytes", "20 bytes", "32 bytes"],
+      "correctIndex": 0,
+      "timerSec": 15
+    }
+  ]
+}

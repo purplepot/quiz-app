@@ -1,36 +1,117 @@
-// ============================================================
-// Types partages entre le serveur, le host-app et le player-app
-// Ce fichier est COMPLET - ne pas modifier
-// ============================================================
-
-/** Une question de quiz avec ses choix et la bonne reponse */
 export interface QuizQuestion {
-  id: string
-  text: string
-  choices: string[]
-  correctIndex: number
-  timerSec: number
+  id: string;
+  text: string;
+  choices: string[];
+  correctIndex: number;
+  timerSec: number;
 }
 
-/** Les differentes phases d'un quiz */
-export type QuizPhase = 'lobby' | 'question' | 'results' | 'leaderboard' | 'ended'
+export type QuizPhase =
+  | "lobby"
+  | "question"
+  | "results"
+  | "leaderboard"
+  | "ended";
 
-/** Messages envoyes par les clients (host ou player) vers le serveur */
+export interface ClientIdentity {
+  deviceId: string;
+  userAgent: string;
+  platform: string;
+  language: string;
+  timezone: string;
+  screen: {
+    width: number;
+    height: number;
+  };
+}
+
+export interface AnswerTelemetry {
+  submittedAt: number;
+  timeTakenMs: number;
+  tabSwitchCount: number;
+  focusedAtSubmit: boolean;
+}
+
+export interface QuizMetadata {
+  moduleTitle: string;
+  status: "scheduled" | "in-progress" | "completed";
+}
+
+export interface PlayerSnapshot {
+  id: string;
+  name: string;
+  joinedAt: number;
+  score: number;
+  suspicionScore: number;
+  flags: string[];
+}
+
+export interface LeaderboardEntry extends PlayerSnapshot {
+  rank: number;
+}
+
 export type ClientMessage =
-  | { type: 'join'; quizCode: string; name: string }
-  | { type: 'answer'; questionId: string; choiceIndex: number }
-  | { type: 'host:create'; title: string; questions: QuizQuestion[] }
-  | { type: 'host:start' }
-  | { type: 'host:next' }
-  | { type: 'host:end' }
+  | {
+      type: "join";
+      quizCode: string;
+      name: string;
+      identity: ClientIdentity;
+      joinedAt: number;
+    }
+  | {
+      type: "answer";
+      questionId: string;
+      choiceIndex: number;
+      telemetry: AnswerTelemetry;
+    }
+  | {
+      type: "host:create";
+      title: string;
+      moduleTitle: string;
+      questions: QuizQuestion[];
+      createdBy: {
+        userId: string;
+        name: string;
+        identity: ClientIdentity;
+        createdAt: number;
+      };
+    }
+  | { type: "host:join"; quizCode: string; userId?: string }
+  | { type: "host:start"; triggeredAt: number }
+  | { type: "host:next"; triggeredAt: number }
+  | { type: "host:end"; triggeredAt: number };
 
-/** Messages envoyes par le serveur vers les clients */
 export type ServerMessage =
-  | { type: 'joined'; playerId: string; players: string[] }
-  | { type: 'question'; question: Omit<QuizQuestion, 'correctIndex'>; index: number; total: number }
-  | { type: 'tick'; remaining: number }
-  | { type: 'results'; correctIndex: number; distribution: number[]; scores: Record<string, number> }
-  | { type: 'leaderboard'; rankings: { name: string; score: number }[] }
-  | { type: 'ended' }
-  | { type: 'error'; message: string }
-  | { type: 'sync'; phase: QuizPhase; data: unknown }
+  | {
+      type: "joined";
+      playerId: string;
+      players: PlayerSnapshot[];
+      quizId: string;
+    }
+  | {
+      type: "question";
+      question: Omit<QuizQuestion, "correctIndex">;
+      index: number;
+      total: number;
+      startedAt: number;
+    }
+  | { type: "tick"; remaining: number }
+  | {
+      type: "results";
+      questionId: string;
+      correctIndex: number;
+      distribution: number[];
+      scoresByPlayerId: Record<string, number>;
+      endedAt: number;
+    }
+  | { type: "leaderboard"; rankings: LeaderboardEntry[] }
+  | { type: "ended"; endedAt: number }
+  | { type: "error"; message: string }
+  | {
+      type: "sync";
+      phase: QuizPhase;
+      data: {
+        quizCode: string;
+        quizId: string;
+      };
+    };

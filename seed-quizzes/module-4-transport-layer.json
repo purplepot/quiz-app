@@ -1,0 +1,101 @@
+{
+  "moduleId": 4,
+  "title": "Module 4",
+  "questions": [
+    {
+      "id": "m4q1",
+      "text": "What is the primary function of TCP?",
+      "choices": [
+        "Connectionless delivery",
+        "Reliable ordered delivery",
+        "Broadcast delivery",
+        "Multicast delivery"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m4q2",
+      "text": "How many bits are in a TCP port number?",
+      "choices": ["8 bits", "16 bits", "24 bits", "32 bits"],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m4q3",
+      "text": "What does UDP stand for?",
+      "choices": [
+        "User Datagram Protocol",
+        "Unified Delivery Process",
+        "Unreliable Data Packet",
+        "User Data Path"
+      ],
+      "correctIndex": 0,
+      "timerSec": 15
+    },
+    {
+      "id": "m4q4",
+      "text": "Which protocol is better for streaming?",
+      "choices": ["TCP", "UDP", "ICMP", "IGMP"],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m4q5",
+      "text": "What is the TCP three-way handshake called?",
+      "choices": ["SYN", "SYN-ACK-FIN", "SYN-ACK-ACK", "FIN-ACK"],
+      "correctIndex": 2,
+      "timerSec": 15
+    },
+    {
+      "id": "m4q6",
+      "text": "What does ICMP do?",
+      "choices": [
+        "Transport data",
+        "Report errors and diagnostics",
+        "Manage routing",
+        "Handle DNS"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m4q7",
+      "text": "Which tool uses ICMP for network diagnostics?",
+      "choices": ["Telnet", "Ping", "FTP", "SSH"],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m4q8",
+      "text": "What is flow control in TCP?",
+      "choices": [
+        "Limiting packet size",
+        "Managing receive window",
+        "Setting timeout",
+        "Choosing routes"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m4q9",
+      "text": "What is congestion control?",
+      "choices": [
+        "Limiting packet loss",
+        "Reducing transmission rate when network overloaded",
+        "Encrypting data",
+        "Compressing headers"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m4q10",
+      "text": "How many bytes are in TCP header minimum?",
+      "choices": ["10 bytes", "20 bytes", "40 bytes", "60 bytes"],
+      "correctIndex": 1,
+      "timerSec": 15
+    }
+  ]
+}

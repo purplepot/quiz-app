@@ -1,0 +1,101 @@
+{
+  "moduleId": 1,
+  "title": "Module 1",
+  "questions": [
+    {
+      "id": "mod1-q11",
+      "text": "Which protocol is responsible for sending packets between routers?",
+      "choices": [
+        "Data Link Layer protocol",
+        "IP (Internet Protocol)",
+        "TCP",
+        "Ethernet"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "mod1-q12",
+      "text": "What is the maximum size of an Ethernet frame?",
+      "choices": ["512 bytes", "1024 bytes", "1518 bytes", "2048 bytes"],
+      "correctIndex": 2,
+      "timerSec": 15
+    },
+    {
+      "id": "mod1-q13",
+      "text": "Which layer handles error detection and correction?",
+      "choices": ["Layer 1", "Layer 2", "Layer 3", "Layer 7"],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "mod1-q14",
+      "text": "What is a broadcast address used for?",
+      "choices": [
+        "Send to one device",
+        "Send to all devices on network",
+        "Send to router only",
+        "Send to server"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "mod1-q15",
+      "text": "Which of these is a simplex transmission?",
+      "choices": ["Phone call", "Television broadcast", "Email", "Video call"],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "mod1-q16",
+      "text": "What is the purpose of a repeater?",
+      "choices": [
+        "Amplify and retransmit signals",
+        "Filter traffic",
+        "Route packets",
+        "Store data"
+      ],
+      "correctIndex": 0,
+      "timerSec": 15
+    },
+    {
+      "id": "mod1-q17",
+      "text": "Which device operates at Layer 3?",
+      "choices": ["Hub", "Switch", "Router", "Repeater"],
+      "correctIndex": 2,
+      "timerSec": 15
+    },
+    {
+      "id": "mod1-q18",
+      "text": "What is packet fragmentation?",
+      "choices": [
+        "Breaking large packets into smaller ones",
+        "Combining packets",
+        "Encrypting packets",
+        "Compressing packets"
+      ],
+      "correctIndex": 0,
+      "timerSec": 15
+    },
+    {
+      "id": "mod1-q19",
+      "text": "Which is a point-to-point protocol?",
+      "choices": ["Ethernet", "PPP", "802.11", "TOKEN RING"],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "mod1-q20",
+      "text": "What does MTU stand for?",
+      "choices": [
+        "Maximum Token Unit",
+        "Maximum Transfer Unit",
+        "Minimum Text Update",
+        "Maximum Throughput Unit"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    }
+  ]
+}

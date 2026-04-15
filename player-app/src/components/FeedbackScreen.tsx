@@ -1,42 +1,44 @@
 // ============================================================
-// FeedbackScreen - Retour correct/incorrect
-// A IMPLEMENTER : icone et score
+// FeedbackScreen - Correct/incorrect feedback
+// TO IMPLEMENT: icon and score
 // ============================================================
 
 interface FeedbackScreenProps {
-  /** Si true, le joueur a repondu correctement */
-  correct: boolean
-  /** Score total actuel du joueur */
-  score: number
+  /** If true, the player answered correctly */
+  correct: boolean;
+  /** Player's current total score */
+  score: number;
 }
 
 /**
- * Composant affichant le retour apres une question (correct ou incorrect).
+ * Component showing feedback after a question (correct or incorrect).
  *
- * Ce qu'il faut implementer :
- * - Un conteneur avec la classe .feedback et .correct ou .incorrect selon le resultat
- * - Une icone grande (classe .feedback-icon)
- *   Le CSS ajoute automatiquement un check ou un X via ::after
- * - Un texte "Bonne reponse !" ou "Mauvaise reponse" (classe .feedback-text)
- * - Le score total du joueur (classe .feedback-score) : "Score : 1500 pts"
+ * What to implement:
+ * - A container with class .feedback and .correct or .incorrect based on result
+ * - A large icon (class .feedback-icon)
+ *   CSS automatically adds a check or X via ::after
+ * - Text "Correct answer!" or "Wrong answer" (class .feedback-text)
+ * - Player total score (class .feedback-score): "Score: 1500 pts"
  *
- * Classes CSS disponibles : .feedback-container, .feedback, .correct, .incorrect,
+ * Available CSS classes: .feedback-container, .feedback, .correct, .incorrect,
  * .feedback-icon, .feedback-text, .feedback-score
  */
 function FeedbackScreen({ correct, score }: FeedbackScreenProps) {
   return (
     <div className="phase-container feedback-container">
-      {/* Conteneur .feedback avec .correct ou .incorrect */}
-      <div className={`feedback ${correct ? 'correct' : 'incorrect'}`}>
-        {/* Icone .feedback-icon */}
+      {/* .feedback container with .correct or .incorrect */}
+      <div className={`feedback ${correct ? "correct" : "incorrect"}`}>
+        {/* Icon .feedback-icon */}
         <div className="feedback-icon"></div>
-        {/* Texte "Bonne reponse !" ou "Mauvaise reponse" */}
-        <p className="feedback-text">{correct ? 'Bonne réponse !' : 'Mauvaise réponse'}</p>
-        {/* Score "Score : {score} pts" */}
-        <p className="feedback-score">Score : {score} pts</p>
+        {/* Text "Correct answer!" or "Wrong answer" */}
+        <p className="feedback-text">
+          {correct ? "Correct answer!" : "Wrong answer"}
+        </p>
+        {/* Score "Score: {score} pts" */}
+        <p className="feedback-score">Score: {score} pts</p>
       </div>
     </div>
-  )
+  );
 }
 
-export default FeedbackScreen
+export default FeedbackScreen;

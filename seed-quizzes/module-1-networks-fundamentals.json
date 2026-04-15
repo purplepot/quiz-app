@@ -1,0 +1,101 @@
+{
+  "moduleId": 1,
+  "title": "Module 1",
+  "questions": [
+    {
+      "id": "mod1-q1",
+      "text": "What is the primary function of a network protocol?",
+      "choices": [
+        "To encrypt data",
+        "To define rules for data communication",
+        "To store data locally",
+        "To increase bandwidth"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "mod1-q2",
+      "text": "Which layer is responsible for physical transmission of data?",
+      "choices": [
+        "Application Layer",
+        "Transport Layer",
+        "Data Link Layer",
+        "Physical Layer"
+      ],
+      "correctIndex": 3,
+      "timerSec": 15
+    },
+    {
+      "id": "mod1-q3",
+      "text": "What does TCP stand for?",
+      "choices": [
+        "Transmission Control Protocol",
+        "Transfer Communication Process",
+        "Transport Control Port",
+        "Transmission Channel Protocol"
+      ],
+      "correctIndex": 0,
+      "timerSec": 15
+    },
+    {
+      "id": "mod1-q4",
+      "text": "What is the maximum data rate of standard Ethernet?",
+      "choices": ["10 Mbps", "100 Mbps", "1000 Mbps", "10 Gbps"],
+      "correctIndex": 2,
+      "timerSec": 15
+    },
+    {
+      "id": "mod1-q5",
+      "text": "Which of the following is a valid IP address format?",
+      "choices": ["256.256.256.256", "192.168.1.1", "999.0.0.1", "1.1.1.1.1"],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "mod1-q6",
+      "text": "What is the purpose of a MAC address?",
+      "choices": [
+        "To identify devices on the local network",
+        "To route packets globally",
+        "To encrypt communication",
+        "To manage DNS queries"
+      ],
+      "correctIndex": 0,
+      "timerSec": 15
+    },
+    {
+      "id": "mod1-q7",
+      "text": "Which layer of OSI model deals with routing?",
+      "choices": ["Layer 2", "Layer 3", "Layer 4", "Layer 7"],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "mod1-q8",
+      "text": "What is the bandwidth of a Gigabit Ethernet link?",
+      "choices": ["100 Mbps", "1 Gbps", "10 Gbps", "100 Gbps"],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "mod1-q9",
+      "text": "Which protocol is used for DNS queries?",
+      "choices": ["TCP", "UDP", "ICMP", "IGMP"],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "mod1-q10",
+      "text": "What does LAN stand for?",
+      "choices": [
+        "Local Area Network",
+        "Long Access Network",
+        "Link Assembly Node",
+        "Layer Aggregation Network"
+      ],
+      "correctIndex": 0,
+      "timerSec": 15
+    }
+  ]
+}

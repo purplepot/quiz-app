@@ -1,94 +1,111 @@
 // ============================================================
-// Results - Affichage des resultats d'une question
-// A IMPLEMENTER : barres animees et bonne reponse
+// Results - Display question results
+// TO IMPLEMENT: animated bars and correct answer
 // ============================================================
 
 interface ResultsProps {
-  /** Index de la bonne reponse (0-3) */
-  correctIndex: number
-  /** Distribution des reponses [nb_choix_0, nb_choix_1, nb_choix_2, nb_choix_3] */
-  distribution: number[]
-  /** Texte des choix de reponse */
-  choices: string[]
-  /** Callback quand le host clique sur "Question suivante" */
-  onNext: () => void
+  /** Correct answer index (0-3) */
+  correctIndex: number;
+  /** Answer distribution [count_choice_0, count_choice_1, count_choice_2, count_choice_3] */
+  distribution: number[];
+  /** Choice labels */
+  choices: string[];
+  /** Callback when host clicks "Next question" */
+  onNext: () => void;
 }
 
 /**
- * Composant affichant les resultats d'une question avec des barres animees.
+ * Component displaying results for a question with animated bars.
  *
- * Ce qu'il faut implementer :
- * - Un titre "Resultats"
- * - Pour chaque choix, une barre horizontale proportionnelle au nombre de reponses
+ * What to implement:
+ * - A "Results" title
+ * - For each choice, a horizontal bar proportional to number of answers
  *   (classes .result-bar-container, .result-bar-label, .result-bar-wrapper, .result-bar)
- *   La barre correcte a la classe .correct, les autres .incorrect
- *   Afficher un label "(Bonne reponse)" a cote du bon choix (classe .correct-label)
- * - La largeur de la barre est proportionnelle :
+ *   The correct bar has class .correct, others .incorrect
+ *   Show label "(Correct answer)" next to the correct choice (class .correct-label)
+ * - Bar width is proportional:
  *   width = `${maxCount > 0 ? (count / maxCount) * 100 : 0}%`
- * - Un bouton "Question suivante" (classe .btn-primary)
+ * - A "Next question" button (class .btn-primary)
  *
- * Astuce : const maxCount = Math.max(...distribution, 1)
+ * Tip: const maxCount = Math.max(...distribution, 1)
  */
 
-const CHOICE_COLORS = ['#e21b3c', '#1368ce', '#d89e00', '#26890c']
-const CHOICE_LABELS = ['A', 'B', 'C', 'D']
+const CHOICE_COLORS = ["#e21b3c", "#1368ce", "#d89e00", "#26890c"];
+const CHOICE_LABELS = ["A", "B", "C", "D"];
 
-function Results({ correctIndex, distribution, choices, onNext }: ResultsProps) {
-  // TODO: Calculer la largeur proportionnelle de chaque barre
-  const maxCount = Math.max(...distribution, 1)
+function Results({
+  correctIndex,
+  distribution,
+  choices,
+  onNext,
+}: ResultsProps) {
+  // TODO: Calculate proportional width for each bar
+  const maxCount = Math.max(...distribution, 1);
 
   return (
     <div className="phase-container">
       <div className="results-container">
-        <h1>Résultats</h1>
+        <h1>Results</h1>
 
-        {/* TODO: Pour chaque choix, afficher une barre de resultat */}
+        {/* TODO: For each choice, show a result bar */}
         {choices.map((choice, i) => {
-          const count = distribution[i] ?? 0
-          const width = `${(count / maxCount) * 100}%`
-          const isCorrect = i === correctIndex
+          const count = distribution[i] ?? 0;
+          const width = `${(count / maxCount) * 100}%`;
+          const isCorrect = i === correctIndex;
 
           return (
-            <div key={i} style={{ marginBottom: '0.75rem' }}>
-
-              {/* TODO: Afficher le label bonne reponse au dessus */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                <span style={{ color: CHOICE_COLORS[i], fontWeight: 700, fontSize: '0.95rem' }}>
+            <div key={i} style={{ marginBottom: "0.75rem" }}>
+              {/* TODO: Show correct-answer label above */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  marginBottom: "0.25rem",
+                }}
+              >
+                <span
+                  style={{
+                    color: CHOICE_COLORS[i],
+                    fontWeight: 700,
+                    fontSize: "0.95rem",
+                  }}
+                >
                   {CHOICE_LABELS[i]} — {choice}
                 </span>
-                {isCorrect && <span className="correct-label">✓ Bonne réponse</span>}
+                {isCorrect && (
+                  <span className="correct-label">✓ Correct answer</span>
+                )}
               </div>
 
               <div className="result-bar-container" style={{ marginBottom: 0 }}>
                 <div className="result-bar-wrapper">
-                  {/* TODO: Utiliser .result-bar.correct pour la bonne reponse */}
+                  {/* TODO: Use .result-bar.correct for the correct answer */}
                   <div
-                    className={`result-bar ${isCorrect ? 'correct' : 'incorrect'}`}
-                    style={{ width, background: isCorrect ? '#10b981' : CHOICE_COLORS[i] }}
+                    className={`result-bar ${isCorrect ? "correct" : "incorrect"}`}
+                    style={{
+                      width,
+                      background: isCorrect ? "#10b981" : CHOICE_COLORS[i],
+                    }}
                   >
-                    {/* TODO: Afficher le nombre de reponses dans chaque barre */}
+                    {/* TODO: Display number of answers in each bar */}
                     <span className="result-bar-count">{count}</span>
                   </div>
                 </div>
               </div>
-
             </div>
-          )
+          );
         })}
 
-        {/* TODO: Bouton "Question suivante" */}
-        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-          <button
-            className="btn-primary"
-            onClick={onNext}
-          >
-            Question suivante →
+        {/* TODO: "Next question" button */}
+        <div style={{ textAlign: "center", marginTop: "2rem" }}>
+          <button className="btn-primary" onClick={onNext}>
+            Next question -&gt;
           </button>
         </div>
-
       </div>
     </div>
-  )
+  );
 }
 
-export default Results
+export default Results;

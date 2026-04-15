@@ -1,0 +1,101 @@
+{
+  "moduleId": 3,
+  "title": "Module 3",
+  "questions": [
+    {
+      "id": "m3q1",
+      "text": "What is the primary function of a router?",
+      "choices": [
+        "Switch data frames",
+        "Forward packets between networks",
+        "Amplify signals",
+        "Store data"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m3q2",
+      "text": "Which routing algorithm finds shortest path?",
+      "choices": ["OSPF", "BGP", "RIP", "IS-IS"],
+      "correctIndex": 0,
+      "timerSec": 15
+    },
+    {
+      "id": "m3q3",
+      "text": "What is a routing table used for?",
+      "choices": [
+        "Store passwords",
+        "Decide packet forwarding",
+        "Cache DNS",
+        "Buffer data"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m3q4",
+      "text": "Which is an exterior gateway protocol?",
+      "choices": ["OSPF", "BGP", "RIP", "EIGRP"],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m3q5",
+      "text": "What does RIP stand for?",
+      "choices": [
+        "Routing Information Protocol",
+        "Router Installation Port",
+        "Remote Internet Protocol",
+        "Recurring IP Protocol"
+      ],
+      "correctIndex": 0,
+      "timerSec": 15
+    },
+    {
+      "id": "m3q6",
+      "text": "How many hops is maximum for RIP?",
+      "choices": ["10", "15", "30", "Unlimited"],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m3q7",
+      "text": "What is static routing?",
+      "choices": [
+        "Admin-configured routes",
+        "Auto-learned routes",
+        "RIP protocol",
+        "BGP protocol"
+      ],
+      "correctIndex": 0,
+      "timerSec": 15
+    },
+    {
+      "id": "m3q8",
+      "text": "Which metric does OSPF use?",
+      "choices": ["Hop count", "Cost", "Bandwidth", "Delay"],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m3q9",
+      "text": "What is a default route?",
+      "choices": [
+        "Primary route",
+        "Backup route",
+        "Route for unknown destinations",
+        "Static route only"
+      ],
+      "correctIndex": 2,
+      "timerSec": 15
+    },
+    {
+      "id": "m3q10",
+      "text": "Which convergence time is fastest?",
+      "choices": ["RIP", "OSPF", "BGP", "Static routing"],
+      "correctIndex": 1,
+      "timerSec": 15
+    }
+  ]
+}

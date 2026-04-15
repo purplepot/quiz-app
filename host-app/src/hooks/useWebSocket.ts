@@ -1,31 +1,31 @@
 // ============================================================
-// Hook useWebSocket - Ce fichier est COMPLET
-// Auto-reconnexion avec backoff exponentiel
+// useWebSocket Hook - This file is COMPLETE
+// Auto-reconnect with exponential backoff
 // ============================================================
 
-import { useEffect, useRef, useState, useCallback } from 'react'
-import type { ClientMessage, ServerMessage } from '@shared/index'
+import { useEffect, useRef, useState, useCallback } from "react";
+import type { ClientMessage, ServerMessage } from "@shared/index";
 
-type ConnectionStatus = 'connecting' | 'connected' | 'disconnected'
+type ConnectionStatus = "connecting" | "connected" | "disconnected";
 
 interface UseWebSocketReturn {
-  /** Etat actuel de la connexion */
-  status: ConnectionStatus
-  /** Envoie un message au serveur */
-  sendMessage: (message: ClientMessage) => void
-  /** Dernier message recu du serveur */
-  lastMessage: ServerMessage | null
+  /** Current connection status */
+  status: ConnectionStatus;
+  /** Sends a message to the server */
+  sendMessage: (message: ClientMessage) => void;
+  /** Last message received from server */
+  lastMessage: ServerMessage | null;
 }
 
 /**
- * Hook React pour gerer une connexion WebSocket avec auto-reconnexion.
+ * React hook to manage a WebSocket connection with auto-reconnect.
  *
- * @param url - URL du serveur WebSocket (ex: "ws://localhost:3001")
- * @returns Objet avec status, sendMessage et lastMessage
+ * @param url - WebSocket server URL (e.g. "ws://localhost:3003")
+ * @returns Object with status, sendMessage, and lastMessage
  *
  * @example
  * ```tsx
- * const { status, sendMessage, lastMessage } = useWebSocket('ws://localhost:3001')
+ * const { status, sendMessage, lastMessage } = useWebSocket('ws://localhost:3003')
  *
  * useEffect(() => {
  *   if (lastMessage?.type === 'joined') {
@@ -39,103 +39,105 @@ interface UseWebSocketReturn {
  * ```
  */
 export function useWebSocket(url: string): UseWebSocketReturn {
-  const [status, setStatus] = useState<ConnectionStatus>('disconnected')
-  const [lastMessage, setLastMessage] = useState<ServerMessage | null>(null)
+  const [status, setStatus] = useState<ConnectionStatus>("disconnected");
+  const [lastMessage, setLastMessage] = useState<ServerMessage | null>(null);
 
-  const wsRef = useRef<WebSocket | null>(null)
-  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const reconnectAttemptRef = useRef(0)
-  const unmountedRef = useRef(false)
+  const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const reconnectAttemptRef = useRef(0);
+  const unmountedRef = useRef(false);
 
-  const MAX_RECONNECT_DELAY = 30000 // 30 secondes max
+  const MAX_RECONNECT_DELAY = 30000; // max 30 seconds
 
   const connect = useCallback(() => {
-    if (unmountedRef.current) return
+    if (unmountedRef.current) return;
 
-    // Nettoyer la connexion precedente
+    // Clean up previous connection
     if (wsRef.current) {
-      wsRef.current.close()
-      wsRef.current = null
+      wsRef.current.close();
+      wsRef.current = null;
     }
 
-    setStatus('connecting')
+    setStatus("connecting");
 
-    const ws = new WebSocket(url)
-    wsRef.current = ws
+    const ws = new WebSocket(url);
+    wsRef.current = ws;
 
     ws.onopen = () => {
       if (unmountedRef.current) {
-        ws.close()
-        return
+        ws.close();
+        return;
       }
-      console.log('[useWebSocket] Connecte')
-      setStatus('connected')
-      reconnectAttemptRef.current = 0
-    }
+      console.log("[useWebSocket] Connected");
+      setStatus("connected");
+      reconnectAttemptRef.current = 0;
+    };
 
     ws.onmessage = (event: MessageEvent) => {
       try {
-        const message = JSON.parse(event.data as string) as ServerMessage
-        setLastMessage(message)
+        const message = JSON.parse(event.data as string) as ServerMessage;
+        setLastMessage(message);
       } catch (err) {
-        console.error('[useWebSocket] Erreur de parsing:', err)
+        console.error("[useWebSocket] Parse error:", err);
       }
-    }
+    };
 
     ws.onclose = () => {
-      if (unmountedRef.current) return
-      console.log('[useWebSocket] Deconnecte')
-      setStatus('disconnected')
-      wsRef.current = null
+      if (unmountedRef.current) return;
+      console.log("[useWebSocket] Disconnected");
+      setStatus("disconnected");
+      wsRef.current = null;
 
-      // Reconnexion avec backoff exponentiel : 1s, 2s, 4s, 8s... max 30s
+      // Reconnect with exponential backoff: 1s, 2s, 4s, 8s... max 30s
       const delay = Math.min(
         1000 * Math.pow(2, reconnectAttemptRef.current),
-        MAX_RECONNECT_DELAY
-      )
-      console.log(`[useWebSocket] Reconnexion dans ${delay}ms...`)
-      reconnectAttemptRef.current += 1
+        MAX_RECONNECT_DELAY,
+      );
+      console.log(`[useWebSocket] Reconnecting in ${delay}ms...`);
+      reconnectAttemptRef.current += 1;
 
       reconnectTimeoutRef.current = setTimeout(() => {
         if (!unmountedRef.current) {
-          connect()
+          connect();
         }
-      }, delay)
-    }
+      }, delay);
+    };
 
     ws.onerror = (event: Event) => {
-      console.error('[useWebSocket] Erreur:', event)
-      // onclose sera appele automatiquement apres onerror
-    }
-  }, [url])
+      console.error("[useWebSocket] Error:", event);
+      // onclose will be called automatically after onerror
+    };
+  }, [url]);
 
-  // Connexion initiale et cleanup
+  // Initial connection and cleanup
   useEffect(() => {
-    unmountedRef.current = false
-    connect()
+    unmountedRef.current = false;
+    connect();
 
     return () => {
-      unmountedRef.current = true
+      unmountedRef.current = true;
 
       if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current)
-        reconnectTimeoutRef.current = null
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
       }
 
       if (wsRef.current) {
-        wsRef.current.close()
-        wsRef.current = null
+        wsRef.current.close();
+        wsRef.current = null;
       }
-    }
-  }, [connect])
+    };
+  }, [connect]);
 
   const sendMessage = useCallback((message: ClientMessage) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify(message))
+      wsRef.current.send(JSON.stringify(message));
     } else {
-      console.warn('[useWebSocket] Impossible d\'envoyer, WebSocket non connecte')
+      console.warn("[useWebSocket] Cannot send, WebSocket not connected");
     }
-  }, [])
+  }, []);
 
-  return { status, sendMessage, lastMessage }
+  return { status, sendMessage, lastMessage };
 }

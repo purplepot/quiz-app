@@ -1,0 +1,101 @@
+{
+  "moduleId": 5,
+  "title": "Module 5",
+  "questions": [
+    {
+      "id": "m5q1",
+      "text": "What does IPv4 address consist of?",
+      "choices": ["8 bits", "16 bits", "32 bits", "64 bits"],
+      "correctIndex": 2,
+      "timerSec": 15
+    },
+    {
+      "id": "m5q2",
+      "text": "How many octets are in an IPv4 address?",
+      "choices": ["2", "3", "4", "8"],
+      "correctIndex": 2,
+      "timerSec": 15
+    },
+    {
+      "id": "m5q3",
+      "text": "What is a subnet mask used for?",
+      "choices": [
+        "Encrypt traffic",
+        "Identify network portion",
+        "Route packets",
+        "Authenticate users"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m5q4",
+      "text": "What is the range of Class A addresses?",
+      "choices": ["0-127", "128-191", "192-223", "224-239"],
+      "correctIndex": 0,
+      "timerSec": 15
+    },
+    {
+      "id": "m5q5",
+      "text": "What does CIDR stand for?",
+      "choices": [
+        "Classful Inter-Domain Routing",
+        "Classless Inter-Domain Routing",
+        "Core Internet Domain Routing",
+        "Common IP Domain Routing"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m5q6",
+      "text": "What is 192.168.0.0 used for?",
+      "choices": [
+        "Public addressing",
+        "Private addressing",
+        "Loopback",
+        "Multicast"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m5q7",
+      "text": "What is NAT used for?",
+      "choices": [
+        "Data encryption",
+        "Address translation",
+        "Packet filtering",
+        "Load balancing"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m5q8",
+      "text": "What is IPv6 address size?",
+      "choices": ["32 bits", "64 bits", "128 bits", "256 bits"],
+      "correctIndex": 2,
+      "timerSec": 15
+    },
+    {
+      "id": "m5q9",
+      "text": "How many bits are in IPv6 prefix?",
+      "choices": ["32", "48", "64", "128"],
+      "correctIndex": 2,
+      "timerSec": 15
+    },
+    {
+      "id": "m5q10",
+      "text": "What is link-local address in IPv6?",
+      "choices": [
+        "Global address",
+        "Private local address",
+        "Multicast address",
+        "Anycast address"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    }
+  ]
+}

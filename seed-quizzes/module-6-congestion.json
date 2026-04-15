@@ -1,0 +1,121 @@
+{
+  "moduleId": 6,
+  "title": "Module 6",
+  "questions": [
+    {
+      "id": "m6q1",
+      "text": "What is congestion in networks?",
+      "choices": [
+        "Fast data transmission",
+        "Too much traffic for available bandwidth",
+        "Network security issue",
+        "Routing problem"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m6q2",
+      "text": "Which algorithm is used for congestion control?",
+      "choices": ["Dijkstra", "AIMD", "Floyd-Warshall", "Prim's"],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m6q3",
+      "text": "What does AIMD stand for?",
+      "choices": [
+        "Additive Increase Multiplicative Decrease",
+        "Adaptive Internet Monitoring Device",
+        "Advanced IP Management Division",
+        "Active Interval Monitoring Device"
+      ],
+      "correctIndex": 0,
+      "timerSec": 15
+    },
+    {
+      "id": "m6q4",
+      "text": "What is slow start?",
+      "choices": [
+        "Gradual congestion increase",
+        "Exponential window growth at start",
+        "Network boot process",
+        "TCP initialization"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m6q5",
+      "text": "What is congestion avoidance?",
+      "choices": [
+        "Detecting congestion",
+        "Avoiding congestion before loss",
+        "Stopping all transmission",
+        "Encrypting traffic"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m6q6",
+      "text": "What is fair share concept?",
+      "choices": [
+        "Equal bandwidth per user",
+        "Proportional allocation",
+        "Priority-based allocation",
+        "First-come-first-served"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m6q7",
+      "text": "What is queue management for?",
+      "choices": [
+        "Sorting packets",
+        "Managing buffer overflow",
+        "Encrypting data",
+        "Routing selection"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m6q8",
+      "text": "What does RED stand for?",
+      "choices": [
+        "Random Early Detection",
+        "Router Early Discard",
+        "Reliable Early Delivery",
+        "Remote Error Detection"
+      ],
+      "correctIndex": 0,
+      "timerSec": 15
+    },
+    {
+      "id": "m6q9",
+      "text": "What is throttling in networks?",
+      "choices": [
+        "Increasing speed",
+        "Limiting transmission rate",
+        "Boosting signal",
+        "Compressing data"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m6q10",
+      "text": "What is backpressure mechanism?",
+      "choices": [
+        "Network restart",
+        "Signaling upstream to slow down",
+        "Clearing buffers",
+        "Increasing MTU"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    }
+  ]
+}

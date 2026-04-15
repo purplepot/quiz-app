@@ -1,72 +1,82 @@
 // ============================================================
-// AnswerScreen - Boutons de reponse colores
-// A IMPLEMENTER : question, timer, 4 boutons colores
+// AnswerScreen - Colored answer buttons
+// TO IMPLEMENT: question, timer, 4 colored buttons
 // ============================================================
 
-import { useState } from 'react'
-import type { QuizQuestion } from '@shared/index'
+import { useState } from "react";
+import type { QuizQuestion } from "@shared/index";
 
 interface AnswerScreenProps {
-  /** La question en cours (sans correctIndex) */
-  question: Omit<QuizQuestion, 'correctIndex'>
-  /** Temps restant en secondes */
-  remaining: number
-  /** Callback quand le joueur clique sur un choix */
-  onAnswer: (choiceIndex: number) => void
-  /** Si true, le joueur a deja repondu */
-  hasAnswered: boolean
+  /** Current question (without correctIndex) */
+  question: Omit<QuizQuestion, "correctIndex">;
+  /** Remaining time in seconds */
+  remaining: number;
+  /** Callback when player clicks a choice */
+  onAnswer: (choiceIndex: number) => void;
+  /** If true, the player has already answered */
+  hasAnswered: boolean;
 }
 
 /**
- * Composant affichant la question et les boutons de reponse colores.
+ * Component showing the question and colored answer buttons.
  *
- * Ce qu'il faut implementer :
- * - Le temps restant (classe .answer-timer)
- *   Ajouter la classe .warning si remaining <= 10, .danger si remaining <= 3
- * - Le texte de la question (classe .answer-question)
- * - 4 boutons colores dans une grille (classes .answer-grid, .answer-btn)
- *   Les couleurs sont gerees automatiquement par :nth-child dans le CSS
- * - Tous les boutons sont desactives (disabled) si hasAnswered est true
- * - Optionnel : ajouter la classe .selected au bouton choisi
- * - Si le joueur a repondu, afficher "Reponse envoyee !" (classe .answered-message)
+ * What to implement:
+ * - Remaining time (class .answer-timer)
+ *   Add class .warning if remaining <= 10, .danger if remaining <= 3
+ * - Question text (class .answer-question)
+ * - 4 colored buttons in a grid (classes .answer-grid, .answer-btn)
+ *   Colors are handled automatically by :nth-child in CSS
+ * - All buttons are disabled if hasAnswered is true
+ * - Optional: add .selected class to chosen button
+ * - If the player answered, show "Answer submitted!" (class .answered-message)
  *
- * Classes CSS disponibles : .answer-screen, .answer-timer, .warning, .danger,
+ * Available CSS classes: .answer-screen, .answer-timer, .warning, .danger,
  * .answer-question, .answer-grid, .answer-btn, .selected, .answered-message
  */
-function AnswerScreen({ question, remaining, onAnswer, hasAnswered }: AnswerScreenProps) {
-  // State optionnel pour stocker l'index du choix selectionne
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
+function AnswerScreen({
+  question,
+  remaining,
+  onAnswer,
+  hasAnswered,
+}: AnswerScreenProps) {
+  // Optional state to store selected choice index
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const handleClick = (index: number) => {
-    // Appeler onAnswer(index)
-    onAnswer(index)
-    // Optionnel : sauvegarder l'index selectionne pour le style .selected
-    setSelectedIndex(index)
-  }
+    // Call onAnswer(index)
+    onAnswer(index);
+    // Optional: store selected index for .selected style
+    setSelectedIndex(index);
+  };
 
-  const timerClass = `answer-timer ${remaining <= 3 ? 'danger' : remaining <= 10 ? 'warning' : ''}`
+  const timerClass = `answer-timer ${remaining <= 3 ? "danger" : remaining <= 10 ? "warning" : ""}`;
 
   return (
     <div className="answer-screen">
-      {/* Timer avec .answer-timer (+ .warning / .danger selon remaining) */}
+      {/* Timer with .answer-timer (+ .warning / .danger based on remaining) */}
       <div className={timerClass}>{remaining}s</div>
 
-      {/* Texte de la question avec .answer-question */}
+      {/* Question text with .answer-question */}
       <h2 className="answer-question">{question.text}</h2>
 
-      {/* Grille de 4 boutons avec .answer-grid et .answer-btn */}
+      {/* Grid of 4 buttons with .answer-grid and .answer-btn */}
       <div className="answer-grid">
         {question.choices.map((choice, index) => (
-          <button key={index} className={`answer-btn btn-${index} ${selectedIndex === index ? 'selected' : ''}`} onClick={() => handleClick(index)} disabled={hasAnswered}>
+          <button
+            key={index}
+            className={`answer-btn btn-${index} ${selectedIndex === index ? "selected" : ""}`}
+            onClick={() => handleClick(index)}
+            disabled={hasAnswered}
+          >
             {choice}
           </button>
         ))}
       </div>
 
-      {/* Message "Reponse envoyee !" si hasAnswered */}
-      {hasAnswered && <p className="answered-message">Réponse envoyée !</p>}
+      {/* Message "Answer submitted!" if hasAnswered */}
+      {hasAnswered && <p className="answered-message">Answer submitted!</p>}
     </div>
-  )
+  );
 }
 
-export default AnswerScreen
+export default AnswerScreen;

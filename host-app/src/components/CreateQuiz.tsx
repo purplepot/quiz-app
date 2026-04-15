@@ -1,36 +1,31 @@
 // ============================================================
-// CreateQuiz - Formulaire de creation d'un quiz
-// A IMPLEMENTER : construire le formulaire dynamique
+// CreateQuiz - Quiz creation form with module selection & scheduling
 // ============================================================
 
 import type { QuizQuestion } from "@shared/index";
 import { useState } from "react";
+import { MODULES } from "../constants/modules";
 
 interface CreateQuizProps {
-  /** Callback appele quand le formulaire est soumis */
-  onSubmit: (title: string, questions: QuizQuestion[]) => void;
+  /** Callback called when the form is submitted */
+  onSubmit: (questions: QuizQuestion[], moduleId: number) => void;
 }
 
 /**
- * Composant formulaire pour creer un nouveau quiz.
+ * Form component to create a new quiz with module selection and scheduling.
  *
- * Ce qu'il faut implementer : W
- * - Un champ pour le titre du quiz W
- * - Une liste dynamique de questions (pouvoir en ajouter/supprimer) W
- * - Pour chaque question :
- *   - Un champ texte pour la question W
- *   - 4 champs texte pour les choix de reponse W
- *   - Un selecteur (radio) pour la bonne reponse (correctIndex) W
- *   - Un champ pour la duree du timer en secondes W
- * - Un bouton pour ajouter une question W
- * - Un bouton pour soumettre le formulaire W
- *
- * Astuce : utilisez un state pour stocker un tableau de questions
- * et generez un id unique pour chaque question (ex: crypto.randomUUID())
- *
- * Classes CSS disponibles : .create-form, .form-group, .question-card,
- * .question-card-header, .choices-inputs, .choice-input-group,
- * .btn-add-question, .btn-remove, .btn-primary
+ * Features:
+ * - Module selection (dropdown from predefined modules)
+ * - Quiz title field
+ * - Scheduled start time (date + time picker)
+ * - Dynamic list of questions (add/remove)
+ * - For each question:
+ *   - Text field for the question
+ *   - 4 text fields for answer choices
+ *   - Selector (radio) for the correct answer (correctIndex)
+ *   - Field for timer duration in seconds
+ * - Button to add a question
+ * - Button to submit the form
  */
 
 interface DraftQuestion {
@@ -55,39 +50,40 @@ const CHOICE_COLORS = ["#e21b3c", "#1368ce", "#d89e00", "#26890c"];
 const CHOICE_LABELS = ["A", "B", "C", "D"];
 
 function CreateQuiz({ onSubmit }: CreateQuizProps) {
-  // TODO: State pour le titre
-  const [title, setTitle] = useState("");
-  // TODO: State pour la liste des questions
+  const [moduleId, setModuleId] = useState<number>(1);
   const [questions, setQuestions] = useState<DraftQuestion[]>([
     createEmptyQuestion(),
   ]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Valider que le titre n'est pas vide
-    if (!title.trim()) {
-      alert("Le titre du quiz ne peut pas être vide.");
+
+    // Validate module selection
+    if (!moduleId) {
+      alert("Please select a module.");
       return;
     }
-    // TODO: Valider qu'il y a au moins 1 question
+
+    // Validate questions
     if (questions.length === 0) {
-      alert("Ajoutez au moins une question.");
+      alert("Add at least one question.");
       return;
     }
-    // TODO: Valider que chaque question a un texte et 4 choix non-vides
+
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
       if (!q.text.trim()) {
-        alert(`Question ${i + 1} : l'intitulé est vide.`);
+        alert(`Question ${i + 1}: prompt is empty.`);
         return;
       }
       if (q.choices.some((c) => !c.trim())) {
-        alert(`Question ${i + 1} : tous les choix doivent être remplis.`);
+        alert(`Question ${i + 1}: all choices must be filled in.`);
         return;
       }
     }
-    // TODO: Appeler onSubmit(title, questions)
-    onSubmit(title, questions);
+
+    // Call onSubmit with required data
+    onSubmit(questions, moduleId);
   };
 
   const addQuestion = () => {
@@ -117,21 +113,33 @@ function CreateQuiz({ onSubmit }: CreateQuizProps) {
 
   return (
     <div className="phase-container">
-      <h1>Creer un Quiz</h1>
+      <h1>Create a Quiz</h1>
       <form className="create-form" onSubmit={handleSubmit}>
-        {/* TODO: Champ titre */}
+        {/* Module Selection */}
         <div className="form-group">
-          <label htmlFor="quiz-title">Titre du Quiz</label>
-          <input
-            id="quiz-title"
-            type="text"
-            placeholder="Ex: Culture generale spatiale"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+          <label htmlFor="module-select">Select Module *</label>
+          <select
+            id="module-select"
+            value={moduleId}
+            onChange={(e) => setModuleId(Number(e.target.value))}
+            style={{
+              padding: "0.5rem",
+              fontSize: "1rem",
+              borderRadius: "4px",
+              border: "1px solid #ccc",
+              width: "100%",
+            }}
+          >
+            <option value="">-- Choose a module --</option>
+            {MODULES.map((module) => (
+              <option key={module.id} value={module.id}>
+                {module.title}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* TODO: Liste des questions avec .question-card */}
+        {/* TODO: List questions with .question-card */}
         {questions.map((q, idx) => (
           <div className="question-card" key={q.id}>
             <div className="question-card-header">
@@ -142,23 +150,23 @@ function CreateQuiz({ onSubmit }: CreateQuizProps) {
                   className="btn-remove"
                   onClick={() => removeQuestion(q.id)}
                 >
-                  Supprimer
+                  Remove
                 </button>
               )}
             </div>
 
             <div className="form-group">
-              <label>Intitule</label>
+              <label>Prompt</label>
               <input
                 type="text"
-                placeholder="Ex: Quelle planete est la plus proche du soleil ?"
+                placeholder="e.g. Which planet is closest to the sun?"
                 value={q.text}
                 onChange={(e) => updateQuestion(q.id, { text: e.target.value })}
               />
             </div>
 
             <div className="form-group">
-              <label>Choix — cochez la bonne reponse</label>
+              <label>Choices - select the correct answer</label>
               <div className="choices-inputs">
                 {q.choices.map((choice, ci) => (
                   <div className="choice-input-group" key={ci}>
@@ -181,7 +189,7 @@ function CreateQuiz({ onSubmit }: CreateQuizProps) {
                     </span>
                     <input
                       type="text"
-                      placeholder={`Choix ${CHOICE_LABELS[ci]}`}
+                      placeholder={`Choice ${CHOICE_LABELS[ci]}`}
                       value={choice}
                       onChange={(e) => updateChoice(q.id, ci, e.target.value)}
                     />
@@ -191,7 +199,7 @@ function CreateQuiz({ onSubmit }: CreateQuizProps) {
             </div>
 
             <div className="form-group">
-              <label>Duree du timer (secondes)</label>
+              <label>Timer duration (seconds)</label>
               <input
                 type="number"
                 min={5}
@@ -205,19 +213,19 @@ function CreateQuiz({ onSubmit }: CreateQuizProps) {
           </div>
         ))}
 
-        {/* TODO: Bouton ajouter une question */}
+        {/* TODO: Add-question button */}
         <button
           type="button"
           className="btn-add-question"
           onClick={addQuestion}
         >
-          + Ajouter une question
+          + Add a question
         </button>
 
-        {/* TODO: Bouton soumettre */}
+        {/* TODO: Submit button */}
         <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
           <button type="submit" className="btn-primary">
-            Soumettre le Quiz
+            Submit Quiz
           </button>
         </div>
       </form>

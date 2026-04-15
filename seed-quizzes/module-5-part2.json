@@ -1,0 +1,96 @@
+{
+  "moduleId": 5,
+  "title": "Module 5",
+  "questions": [
+    {
+      "id": "m5q11",
+      "text": "What is the default gateway used for?",
+      "choices": [
+        "Local routing",
+        "Non-local destination routing",
+        "DNS lookup",
+        "DHCP"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m5q12",
+      "text": "What is broadcast address in 192.168.1.0/24?",
+      "choices": ["192.168.1.0", "192.168.1.1", "192.168.1.255", "192.168.2.0"],
+      "correctIndex": 2,
+      "timerSec": 15
+    },
+    {
+      "id": "m5q13",
+      "text": "How many hosts in 192.168.0.0/30?",
+      "choices": ["2", "4", "6", "8"],
+      "correctIndex": 0,
+      "timerSec": 15
+    },
+    {
+      "id": "m5q14",
+      "text": "What is the purpose of APIPA?",
+      "choices": [
+        "DHCP fallback",
+        "Static addressing",
+        "DNS resolution",
+        "Encryption"
+      ],
+      "correctIndex": 0,
+      "timerSec": 15
+    },
+    {
+      "id": "m5q15",
+      "text": "Which class has largest host range?",
+      "choices": ["Class A", "Class B", "Class C", "Class D"],
+      "correctIndex": 0,
+      "timerSec": 15
+    },
+    {
+      "id": "m5q16",
+      "text": "What does ARP do?",
+      "choices": [
+        "Resolve IPs to MACs",
+        "Resolve URLs to IPs",
+        "Encrypt routing",
+        "Manage zones"
+      ],
+      "correctIndex": 0,
+      "timerSec": 15
+    },
+    {
+      "id": "m5q17",
+      "text": "What is SLAAC in IPv6?",
+      "choices": [
+        "Manual configuration",
+        "Auto address without DHCP",
+        "Static protocol",
+        "Encryption method"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m5q18",
+      "text": "What is FE80::/10 prefix?",
+      "choices": ["Global unicast", "Multicast", "Link-local", "Loopback"],
+      "correctIndex": 2,
+      "timerSec": 15
+    },
+    {
+      "id": "m5q19",
+      "text": "How many bits in IPv6 host portion?",
+      "choices": ["64 bits", "48 bits", "32 bits", "16 bits"],
+      "correctIndex": 0,
+      "timerSec": 15
+    },
+    {
+      "id": "m5q20",
+      "text": "What can NAT hide?",
+      "choices": ["ISP", "Internal network IPs", "Router", "Firewall"],
+      "correctIndex": 1,
+      "timerSec": 15
+    }
+  ]
+}

@@ -1,63 +1,63 @@
 // ============================================================
-// Lobby - Salle d'attente avant le quiz
-// A IMPLEMENTER : affichage du code et liste des joueurs
+// Lobby - Waiting room before quiz
+// TO IMPLEMENT: show code and player list
 // ============================================================
 
+import type { PlayerSnapshot } from "@shared/index";
+
 interface LobbyProps {
-  /** Code du quiz a afficher pour que les joueurs rejoignent */
+  /** Quiz code to display so players can join */
   quizCode: string;
-  /** Liste des noms de joueurs connectes */
-  players: string[];
-  /** Callback quand le host clique sur "Demarrer" */
+  /** List of connected player names */
+  players: PlayerSnapshot[];
+  /** Callback when host clicks "Start" */
   onStart: () => void;
 }
 
 /**
- * Composant salle d'attente affiche cote host.
+ * Waiting room component shown on host side.
  *
- * Ce qu'il faut implementer :
- * - Le code du quiz affiche en grand (classe .quiz-code) avec le label "Code du quiz"
- * - Le nombre de joueurs connectes
- * - La liste des joueurs (puces avec classe .player-chip dans un .player-list)
- * - Un bouton "Demarrer le quiz" (classe .btn-start)
- *   desactive s'il n'y a aucun joueur
+ * What to implement:
+ * - Quiz code displayed in large text (class .quiz-code) with label "Quiz code"
+ * - Number of connected players
+ * - Player list (chips with class .player-chip in .player-list)
+ * - A "Start quiz" button (class .btn-start)
+ *   disabled if there are no players
  *
- * Classes CSS disponibles : .phase-container, .quiz-code-label, .quiz-code,
+ * Available CSS classes: .phase-container, .quiz-code-label, .quiz-code,
  * .player-count, .player-list, .player-chip, .btn-start
  */
 function Lobby({ quizCode, players, onStart }: LobbyProps) {
   return (
     <div className="phase-container">
-      {/* TODO: Label "Code du quiz" avec classe .quiz-code-label */}
-      <p className="quiz-code-label">Code du quiz</p>
+      {/* TODO: Label "Quiz code" with class .quiz-code-label */}
+      <p className="quiz-code-label">Quiz code</p>
 
-      {/* TODO: Afficher quizCode avec classe .quiz-code */}
-      <div className="quiz-code">
-        {quizCode}
-      </div>
+      {/* TODO: Display quizCode with class .quiz-code */}
+      <div className="quiz-code">{quizCode}</div>
 
-      {/* TODO: Afficher le nombre de joueurs */}
+      {/* TODO: Display player count */}
       <p className="player-count">
-        {players.length} joueur{players.length !== 1 ? "s" : ""} connecté
+        {players.length} player{players.length !== 1 ? "s" : ""} connected
         {players.length !== 1 ? "s" : ""}
       </p>
 
-      {/* TODO: Liste des joueurs avec .player-list et .player-chip */}
+      {/* TODO: Player list with .player-list and .player-chip */}
       <div className="player-list">
-        {players.map((name) => (
-          <span key={name} className="player-chip">
-            {name}
+        {players.map((player) => (
+          <span key={player.id} className="player-chip">
+            {player.name}
           </span>
         ))}
       </div>
 
-      {/* TODO: Bouton Demarrer avec classe .btn-start, desactive si 0 joueurs */}
+      {/* TODO: Start button with class .btn-start, disabled if 0 players */}
       <button
         className="btn-start"
         onClick={onStart}
         disabled={players.length === 0}
       >
-        Demarrer le quiz
+        Start quiz
       </button>
     </div>
   );

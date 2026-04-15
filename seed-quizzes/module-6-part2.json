@@ -1,0 +1,121 @@
+{
+  "moduleId": 6,
+  "title": "Module 6",
+  "questions": [
+    {
+      "id": "m6q11",
+      "text": "What is the difference between drop and mark?",
+      "choices": [
+        "Nothing",
+        "Drop discards, mark flags for later action",
+        "Mark is first",
+        "Drop is faster"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m6q12",
+      "text": "What is weighted fair queueing?",
+      "choices": [
+        "Equal bandwidth",
+        "Bandwidth by priority weight",
+        "FIFO order",
+        "Random order"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m6q13",
+      "text": "What is token bucket used for?",
+      "choices": ["Storage", "Rate limiting", "Encryption", "Routing"],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m6q14",
+      "text": "What happens at congestion window = 1?",
+      "choices": [
+        "Fast transmission",
+        "Slow start phase",
+        "Timeout occurred",
+        "Network idle"
+      ],
+      "correctIndex": 2,
+      "timerSec": 15
+    },
+    {
+      "id": "m6q15",
+      "text": "What is ECN marking?",
+      "choices": [
+        "Error marking",
+        "Explicit Congestion Notification",
+        "Encryption",
+        "Exit Code Notification"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m6q16",
+      "text": "Which increases window more aggressively?",
+      "choices": [
+        "Slow start",
+        "Congestion avoidance",
+        "Fast recovery",
+        "Timeout"
+      ],
+      "correctIndex": 0,
+      "timerSec": 15
+    },
+    {
+      "id": "m6q17",
+      "text": "What is buffer bloat?",
+      "choices": [
+        "Large buffers hiding congestion",
+        "Small buffer errors",
+        "Network expansion",
+        "Data backup"
+      ],
+      "correctIndex": 0,
+      "timerSec": 15
+    },
+    {
+      "id": "m6q18",
+      "text": "What does pacing do?",
+      "choices": [
+        "Speeds up",
+        "Controls transmission rate",
+        "Encrypts data",
+        "Routes packets"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m6q19",
+      "text": "What is jitter in congestion?",
+      "choices": [
+        "Network noise",
+        "Variation in delay",
+        "Packet loss",
+        "Retransmission"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m6q20",
+      "text": "What is a shaper vs policing?",
+      "choices": [
+        "Same thing",
+        "Shaper delays, police discards",
+        "Opposite functions",
+        "Both drop"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    }
+  ]
+}

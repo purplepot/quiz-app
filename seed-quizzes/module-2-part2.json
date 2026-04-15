@@ -1,0 +1,96 @@
+{
+  "moduleId": 2,
+  "title": "Module 2",
+  "questions": [
+    {
+      "id": "m2q11",
+      "text": "What is the default port for IMAP?",
+      "choices": ["110", "143", "465", "993"],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m2q12",
+      "text": "Which protocol is used for web browsers?",
+      "choices": ["SMTP", "HTTP", "SNMP", "NTP"],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m2q13",
+      "text": "What does DNS translate?",
+      "choices": [
+        "IP to MAC",
+        "Domain names to IPs",
+        "Ports to services",
+        "Protocols to ports"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m2q14",
+      "text": "Which protocol manages network time?",
+      "choices": ["NTP", "SNMP", "LDAP", "RADIUS"],
+      "correctIndex": 0,
+      "timerSec": 15
+    },
+    {
+      "id": "m2q15",
+      "text": "What is SNMP used for?",
+      "choices": [
+        "File transfer",
+        "Network device management",
+        "Email",
+        "Remote login"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m2q16",
+      "text": "Which is a tunneling protocol?",
+      "choices": ["HTTP", "PPTP", "SMTP", "POP3"],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m2q17",
+      "text": "What does TLS do?",
+      "choices": [
+        "Transfers files",
+        "Encrypts communication",
+        "Routes packets",
+        "Manages DNS"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m2q18",
+      "text": "Which protocol is stateless?",
+      "choices": ["TCP", "SCTP", "HTTP", "UDP"],
+      "correctIndex": 2,
+      "timerSec": 15
+    },
+    {
+      "id": "m2q19",
+      "text": "What is the function of LDAP?",
+      "choices": [
+        "Load balancing",
+        "Directory services",
+        "Link detection",
+        "Latency detection"
+      ],
+      "correctIndex": 1,
+      "timerSec": 15
+    },
+    {
+      "id": "m2q20",
+      "text": "Which uses port 53?",
+      "choices": ["HTTP", "DNS", "SMTP", "SSH"],
+      "correctIndex": 1,
+      "timerSec": 15
+    }
+  ]
+}
