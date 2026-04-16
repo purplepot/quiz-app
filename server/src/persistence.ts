@@ -344,50 +344,19 @@ class QuizPersistence {
       );
   }
 
-  async updateParticipantCount(quizId: string, count: number): Promise<void> {
-    console.log(`[updateParticipantCount] Updating quiz ${quizId} with ${count} participants`);
-    await this.client
-      .db(this.dbName())
-      .collection("quizzes")
-      .updateOne(
-        { quizId },
-        {
-          $set: {
-            participantCount: count,
-            updatedAt: Date.now(),
-          },
-        },
-      );
-  }
-
-  async incrementParticipantCount(quizId: string): Promise<void> {
-    console.log(`[incrementParticipantCount] Incrementing participant count for quiz ${quizId}`);
-    await this.client
-      .db(this.dbName())
-      .collection("quizzes")
-      .updateOne(
-        { quizId },
-        {
-          $inc: { participantCount: 1 },
-          $set: { updatedAt: Date.now() },
-        },
-      );
-  }
-
   // === Analytics/History ===
 
   async getQuizzesByCreator(userId: string): Promise<any[]> {
-    console.log(`[getQuizzesByCreator] Fetching started quizzes for userId: ${userId}`);
+    console.log(`[getQuizzesByCreator] Fetching quizzes for userId: ${userId}`);
     const quizzes = await this.client
       .db(this.dbName())
       .collection("quizzes")
       .find({
-        participantCount: { $gt: 0 }, // Only show quizzes that had at least 1 participant (were started)
         $or: [{ "createdBy.userId": userId }, { hostedBy: userId }],
       })
-      .sort({ updatedAt: -1 }) // Sort by most recent updates first
+      .sort({ createdAt: -1 })
       .toArray();
-    console.log(`[getQuizzesByCreator] Found ${quizzes.length} started quizzes for this user`);
+    console.log(`[getQuizzesByCreator] Found ${quizzes.length} quizzes`);
 
     return quizzes.map((q) => {
       console.log(
@@ -441,6 +410,23 @@ class QuizPersistence {
       .collection("quizzes");
 
     const quiz = await quizzesCollection.findOne({ code });
+    return quiz
+      ? {
+          quizId: quiz.quizId,
+          code: quiz.code,
+          title: quiz.title,
+          moduleTitle: quiz.moduleTitle,
+          questions: quiz.questions,
+        }
+      : null;
+  }
+
+  async getQuizById(quizId: string): Promise<any> {
+    const quizzesCollection = this.client
+      .db(this.dbName())
+      .collection("quizzes");
+
+    const quiz = await quizzesCollection.findOne({ quizId });
     return quiz
       ? {
           quizId: quiz.quizId,

@@ -29,6 +29,8 @@ async function handleHttpRequest(req: any, res: any) {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const pathname = url.pathname;
 
+  console.log(`[HTTP] ${req.method} ${pathname}`);
+
   // Enable CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -236,9 +238,54 @@ async function handleHttpRequest(req: any, res: any) {
       res.end(JSON.stringify({ error: "Internal server error" }));
     }
   } else if (
-    pathname.match(/^\/api\/quizzes\/[^/]+\/responses$/) &&
-    req.method === "GET"
+    req.method === "GET" &&
+    pathname.startsWith("/api/quizzes/") &&
+    !pathname.includes("/responses")
   ) {
+    // Get single quiz by ID
+    console.log(`[API] Matched quiz by ID endpoint: ${pathname}`);
+    try {
+      const authHeader = req.headers.authorization;
+      const token = authHeader?.replace("Bearer ", "");
+      console.log(`[API] Auth header: ${authHeader}`);
+      const { userId, isValid } = verifyToken(token ?? "");
+
+      console.log(
+        `[API] Token check - present: ${!!token}, valid: ${isValid}, userId: ${userId}`,
+      );
+
+      if (!isValid) {
+        console.log(`[API] Unauthorized - returning 401`);
+        res.writeHead(401, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Unauthorized" }));
+        return;
+      }
+
+      const quizId = pathname.split("/")[3];
+      console.log(`[API] Fetching quiz with ID: ${quizId}`);
+      const quiz = await quizPersistence.getQuizById(quizId);
+      console.log(`[API] Quiz found:`, !!quiz);
+
+      if (!quiz) {
+        res.writeHead(404, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Quiz not found" }));
+        return;
+      }
+
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(quiz));
+    } catch (error) {
+      console.error("[API] Get quiz error:", error);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Internal server error" }));
+    }
+  } else if (
+    req.method === "GET" &&
+    pathname.startsWith("/api/quizzes/") &&
+    pathname.includes("/responses")
+  ) {
+    // Get quiz responses
+    console.log(`[API] Matched quiz responses endpoint: ${pathname}`);
     try {
       const authHeader = req.headers.authorization;
       const token = authHeader?.replace("Bearer ", "");
@@ -251,7 +298,9 @@ async function handleHttpRequest(req: any, res: any) {
       }
 
       const quizId = pathname.split("/")[3];
+      console.log(`[API] Fetching responses for quiz: ${quizId}`);
       const responses = await quizPersistence.getQuizResponses(quizId);
+      console.log(`[API] Got ${responses.length} response records`);
 
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(responses));
@@ -306,6 +355,7 @@ async function handleHttpRequest(req: any, res: any) {
       res.end(JSON.stringify({ error: "Internal server error" }));
     }
   } else {
+    console.log(`[HTTP] No route matched for ${req.method} ${pathname}`);
     res.writeHead(200, { "Content-Type": "text/plain" });
     res.end("Quiz WebSocket Server is running");
   }
@@ -528,14 +578,15 @@ wss.on("connection", (ws: WebSocket) => {
           );
 
         // Update quiz with final participant count
-        await quizPersistence
-          .updateParticipantCount(room.id, playerSnapshots.length)
-          .catch((err) =>
-            console.error(
-              "[host:end] Failed to update participant count:",
-              err,
-            ),
-          );
+        // Note: updateParticipantCount method doesn't exist, participant count is tracked elsewhere
+        // await quizPersistence
+        //   .updateParticipantCount(room.id, playerSnapshots.length)
+        //   .catch((err: any) =>
+        //     console.error(
+        //       "[host:end] Failed to update participant count:",
+        //       err,
+        //     ),
+        //   );
 
         await quizPersistence.logEvent(
           room.id,

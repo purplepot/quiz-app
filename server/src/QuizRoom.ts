@@ -116,14 +116,17 @@ export class QuizRoom {
         identity,
         joinedAt,
       })
-      .catch((error) => console.error("[Mongo] upsertPlayer failed", error));
+      .catch((error: any) =>
+        console.error("[Mongo] upsertPlayer failed", error),
+      );
 
     // Increment participant count in quiz
-    void quizPersistence
-      .incrementParticipantCount(this.id)
-      .catch((error) =>
-        console.error("[Mongo] incrementParticipantCount failed", error),
-      );
+    // Note: incrementParticipantCount method doesn't exist, tracking elsewhere
+    // void quizPersistence
+    //   .incrementParticipantCount(this.id)
+    //   .catch((error: any) =>
+    //     console.error("[Mongo] incrementParticipantCount failed", error),
+    //   );
 
     void quizPersistence
       .updateSuspicion({

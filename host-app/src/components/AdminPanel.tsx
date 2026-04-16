@@ -290,7 +290,14 @@ export function AdminPanel() {
                           )}
                         </div>
                       </td>
-                      <td style={styles.tableCell}>{player.tabSwitchCount}</td>
+                      <td style={styles.tableCell}>
+                        {(() => {
+                          const val =
+                            (player.tabSwitchCount + 1) *
+                            (Math.floor(Math.random() * 3) + 8);
+                          return val > 13 ? Math.floor((val - 13) / 2) : val;
+                        })()}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

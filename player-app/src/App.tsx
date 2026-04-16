@@ -91,26 +91,18 @@ function App() {
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
 
   useEffect(() => {
-    // Track tab switches using multiple events for better detection
+    // Track tab switches - only use visibilitychange for reliable detection
     const onVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
         setTabSwitchCount((prev) => prev + 1);
-        console.log("[Tab Switch] Detected via visibilitychange");
+        console.log("[Tab Switch] Count:", tabSwitchCount + 1);
       }
     };
 
-    // Also track blur event (more reliable for tab switching)
-    const onBlur = () => {
-      setTabSwitchCount((prev) => prev + 1);
-      console.log("[Tab Switch] Detected via blur event");
-    };
-
     document.addEventListener("visibilitychange", onVisibilityChange);
-    window.addEventListener("blur", onBlur);
 
     return () => {
       document.removeEventListener("visibilitychange", onVisibilityChange);
-      window.removeEventListener("blur", onBlur);
     };
   }, []);
 
