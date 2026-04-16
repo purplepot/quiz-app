@@ -17,6 +17,11 @@ import AnswerScreen from "./components/AnswerScreen";
 import FeedbackScreen from "./components/FeedbackScreen";
 import ScoreScreen from "./components/ScoreScreen";
 import { ParticipantAuthForm } from "./components/ParticipantAuthForm";
+import { Learn } from "./components/Learn";
+import { Help } from "./components/Help";
+import { References } from "./components/References";
+import { Credits } from "./components/Credits";
+import { Visualization } from "./components/Visualization";
 import { getClientIdentity } from "./utils/identity";
 
 const WS_URL = `ws://${window.location.hostname}:3003`;
@@ -73,21 +78,39 @@ function App() {
   const [lastCorrect, setLastCorrect] = useState(false);
   const [score, setScore] = useState(0);
   const [rankings, setRankings] = useState<LeaderboardEntry[]>([]);
+
+  // --- Educational modal states ---
+  const [showLearn, setShowLearn] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [showReferences, setShowReferences] = useState(false);
+  const [showCredits, setShowCredits] = useState(false);
+  const [showVisualization, setShowVisualization] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
   const [questionStartedAt, setQuestionStartedAt] = useState(0);
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
 
   useEffect(() => {
+    // Track tab switches using multiple events for better detection
     const onVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
         setTabSwitchCount((prev) => prev + 1);
+        console.log("[Tab Switch] Detected via visibilitychange");
       }
     };
 
+    // Also track blur event (more reliable for tab switching)
+    const onBlur = () => {
+      setTabSwitchCount((prev) => prev + 1);
+      console.log("[Tab Switch] Detected via blur event");
+    };
+
     document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("blur", onBlur);
+
     return () => {
       document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("blur", onBlur);
     };
   }, []);
 
@@ -205,13 +228,22 @@ function App() {
     setSelectedChoice(choiceIndex);
     // Send an 'answer' message with question id and choiceIndex
     const submittedAt = Date.now();
+    const timeTaken = Math.max(0, submittedAt - questionStartedAt);
+
+    console.log("[Answer Telemetry]", {
+      questionId: currentQuestion.id,
+      timeTakenMs: timeTaken,
+      tabSwitchCount,
+      focusedAtSubmit: document.visibilityState === "visible",
+    });
+
     sendMessage({
       type: "answer",
       questionId: currentQuestion.id,
       choiceIndex,
       telemetry: {
         submittedAt,
-        timeTakenMs: Math.max(0, submittedAt - questionStartedAt),
+        timeTakenMs: timeTaken,
         tabSwitchCount,
         focusedAtSubmit: document.visibilityState === "visible",
       },
@@ -285,11 +317,98 @@ function App() {
           style={{
             marginLeft: "auto",
             display: "flex",
-            gap: "15px",
+            gap: "10px",
             alignItems: "center",
           }}
         >
-          <span style={{ fontSize: "14px", color: "#666" }}>
+          <button
+            onClick={() => setShowLearn(true)}
+            style={{
+              padding: "8px 12px",
+              backgroundColor: "#bb86fc",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "12px",
+              fontWeight: "600",
+            }}
+            title="Learn about the system"
+          >
+            📚 Learn
+          </button>
+          <button
+            onClick={() => setShowHelp(true)}
+            style={{
+              padding: "8px 12px",
+              backgroundColor: "#26c6da",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "12px",
+              fontWeight: "600",
+            }}
+            title="Get help and FAQ"
+          >
+            ❓ Help
+          </button>
+          <button
+            onClick={() => setShowVisualization(true)}
+            style={{
+              padding: "8px 12px",
+              backgroundColor: "#42a5f5",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "12px",
+              fontWeight: "600",
+            }}
+            title="See interactive visualization"
+          >
+            📊 Viz
+          </button>
+          <button
+            onClick={() => setShowReferences(true)}
+            style={{
+              padding: "8px 12px",
+              backgroundColor: "#4caf50",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "12px",
+              fontWeight: "600",
+            }}
+            title="References and external links"
+          >
+            🔗 Refs
+          </button>
+          <button
+            onClick={() => setShowCredits(true)}
+            style={{
+              padding: "8px 12px",
+              backgroundColor: "#ce93d8",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "12px",
+              fontWeight: "600",
+            }}
+            title="About this project"
+          >
+            👥 Credits
+          </button>
+          <span
+            style={{
+              fontSize: "14px",
+              color: "#666",
+              paddingLeft: "10px",
+              borderLeft: "1px solid #ddd",
+            }}
+          >
             Logged in as: <strong>{user?.name}</strong>
           </span>
           <button
@@ -316,6 +435,17 @@ function App() {
         </span>
       </header>
       <main className="app-main">{renderPhase()}</main>
+
+      {/* Educational Modals */}
+      {showLearn && <Learn onClose={() => setShowLearn(false)} />}
+      {showHelp && <Help onClose={() => setShowHelp(false)} />}
+      {showReferences && (
+        <References onClose={() => setShowReferences(false)} />
+      )}
+      {showCredits && <Credits onClose={() => setShowCredits(false)} />}
+      {showVisualization && (
+        <Visualization onClose={() => setShowVisualization(false)} />
+      )}
     </div>
   );
 }

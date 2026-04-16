@@ -75,7 +75,50 @@ export function AdminPanel() {
 
   return (
     <div style={styles.container}>
-      <h1>Admin Dashboard</h1>
+      <div
+        style={{
+          display: "flex",
+          gap: "15px",
+          alignItems: "center",
+          marginBottom: "30px",
+        }}
+      >
+        <h2 style={{ margin: 0, color: "#ffffff" }}>Admin Dashboard</h2>
+        <div style={styles.navTabs}>
+          <button
+            onClick={() => setActiveTab("overview")}
+            style={{
+              ...styles.navTabButton,
+              borderBottom:
+                activeTab === "overview" ? "3px solid #42a5f5" : "none",
+              color: activeTab === "overview" ? "#42a5f5" : "#999",
+            }}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => setActiveTab("flagged")}
+            style={{
+              ...styles.navTabButton,
+              borderBottom:
+                activeTab === "flagged" ? "3px solid #ef4444" : "none",
+              color: activeTab === "flagged" ? "#ef4444" : "#999",
+            }}
+          >
+            Flagged Players
+          </button>
+          <button
+            onClick={() => setActiveTab("all")}
+            style={{
+              ...styles.navTabButton,
+              borderBottom: activeTab === "all" ? "3px solid #4caf50" : "none",
+              color: activeTab === "all" ? "#4caf50" : "#999",
+            }}
+          >
+            All Data
+          </button>
+        </div>
+      </div>
 
       {error && <div style={styles.error}>{error}</div>}
 
@@ -89,7 +132,7 @@ export function AdminPanel() {
           <div style={styles.statValue}>{stats.totalPlayers}</div>
           <div style={styles.statLabel}>Total Participants</div>
         </div>
-        <div style={{ ...styles.statCard, backgroundColor: "#fee2e2" }}>
+        <div style={{ ...styles.statCard, borderLeft: "4px solid #ef4444" }}>
           <div style={{ ...styles.statValue, color: "#ef4444" }}>
             {stats.flaggedPlayers}
           </div>
@@ -103,54 +146,24 @@ export function AdminPanel() {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div style={styles.tabs}>
-        <button
-          onClick={() => setActiveTab("overview")}
-          style={{
-            ...styles.tabButton,
-            backgroundColor: activeTab === "overview" ? "#6366f1" : "#e5e7eb",
-            color: activeTab === "overview" ? "white" : "#333",
-          }}
-        >
-          Overview
-        </button>
-        <button
-          onClick={() => setActiveTab("flagged")}
-          style={{
-            ...styles.tabButton,
-            backgroundColor: activeTab === "flagged" ? "#ef4444" : "#e5e7eb",
-            color: activeTab === "flagged" ? "white" : "#333",
-          }}
-        >
-          Flagged Players ({stats.flaggedPlayers})
-        </button>
-        <button
-          onClick={() => setActiveTab("all")}
-          style={{
-            ...styles.tabButton,
-            backgroundColor: activeTab === "all" ? "#10b981" : "#e5e7eb",
-            color: activeTab === "all" ? "white" : "#333",
-          }}
-        >
-          All Data
-        </button>
-      </div>
-
-      {/* Content */}
+      {/* OLD TABS - Hidden in nav now, but keeping structure for active content rendering */}
       {activeTab === "overview" && (
         <div style={styles.section}>
-          <h2>System Overview</h2>
+          <h2 style={{ color: "#42a5f5", marginTop: 0 }}>System Overview</h2>
           <div style={styles.infoGrid}>
             <div style={styles.infoBox}>
-              <h3>Suspicious Activity Detected</h3>
+              <h3 style={{ color: "#ffffff", marginTop: 0 }}>
+                Suspicious Activity Detected
+              </h3>
               <p style={styles.largeNumber}>{stats.flaggedPlayers}</p>
               <p style={styles.infoText}>
                 Players flagged for cheating signals
               </p>
             </div>
             <div style={styles.infoBox}>
-              <h3>Common Cheating Patterns</h3>
+              <h3 style={{ color: "#ffffff", marginTop: 0 }}>
+                Common Cheating Patterns
+              </h3>
               <ul style={styles.list}>
                 <li>
                   High tab-switch count:{" "}
@@ -192,21 +205,61 @@ export function AdminPanel() {
 
       {activeTab === "flagged" && (
         <div style={styles.section}>
-          <h2>Flagged Players</h2>
+          <h2 style={{ color: "#42a5f5", marginTop: 0 }}>Flagged Players</h2>
           {flaggedPlayers.length === 0 ? (
-            <p style={{ textAlign: "center", color: "#666" }}>
+            <p style={{ textAlign: "center", color: "#999" }}>
               No flagged players
             </p>
           ) : (
             <div style={styles.tableWrapper}>
               <table style={styles.table}>
-                <thead>
+                <thead style={{ backgroundColor: "#2d2d2d" }}>
                   <tr>
-                    <th>Player Name</th>
-                    <th>Quiz</th>
-                    <th>Suspicion Score</th>
-                    <th>Flags</th>
-                    <th>Tab Switches</th>
+                    <th
+                      style={{
+                        color: "#42a5f5",
+                        padding: "12px",
+                        textAlign: "left",
+                      }}
+                    >
+                      Player Name
+                    </th>
+                    <th
+                      style={{
+                        color: "#42a5f5",
+                        padding: "12px",
+                        textAlign: "left",
+                      }}
+                    >
+                      Quiz
+                    </th>
+                    <th
+                      style={{
+                        color: "#42a5f5",
+                        padding: "12px",
+                        textAlign: "left",
+                      }}
+                    >
+                      Suspicion Score
+                    </th>
+                    <th
+                      style={{
+                        color: "#42a5f5",
+                        padding: "12px",
+                        textAlign: "left",
+                      }}
+                    >
+                      Flags
+                    </th>
+                    <th
+                      style={{
+                        color: "#42a5f5",
+                        padding: "12px",
+                        textAlign: "left",
+                      }}
+                    >
+                      Tab Switches
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -249,12 +302,14 @@ export function AdminPanel() {
 
       {activeTab === "all" && (
         <div style={styles.section}>
-          <h2>All Participants in Database</h2>
-          <p style={{ marginBottom: "20px", color: "#666" }}>
+          <h2 style={{ color: "#42a5f5", marginTop: 0 }}>
+            All Participants in Database
+          </h2>
+          <p style={{ marginBottom: "20px", color: "#999" }}>
             Total: {stats.totalPlayers} participants across {stats.totalQuizzes}{" "}
             quizzes
           </p>
-          <p style={{ color: "#666", fontSize: "14px" }}>
+          <p style={{ color: "#999", fontSize: "14px" }}>
             View suspicion scores and cheating signals for all participants
           </p>
         </div>
@@ -262,11 +317,11 @@ export function AdminPanel() {
 
       {/* Footer Note */}
       <div style={styles.footer}>
-        <p>
+        <p style={{ color: "#42a5f5", margin: "0 0 8px 0" }}>
           📊 Admin data is stored in MongoDB and updated in real-time as quizzes
           are conducted.
         </p>
-        <p style={{ marginTop: "8px", fontSize: "12px", color: "#999" }}>
+        <p style={{ marginTop: "0", fontSize: "12px", color: "#999" }}>
           Suspicion scores help identify potential cheating. Scores are
           cumulative across answers.
         </p>
@@ -280,11 +335,26 @@ const styles = {
     padding: "30px",
     maxWidth: "1400px",
     margin: "0 auto",
+    backgroundColor: "#0f0f0f",
+    minHeight: "100vh",
+  },
+  navTabs: {
+    display: "flex" as const,
+    gap: "25px",
+  },
+  navTabButton: {
+    background: "none",
+    border: "none",
+    fontSize: "14px",
+    fontWeight: "600" as const,
+    cursor: "pointer" as const,
+    padding: "8px 0",
+    transition: "color 0.3s, border-color 0.3s",
   },
   error: {
     padding: "12px",
-    backgroundColor: "#fee2e2",
-    color: "#991b1b",
+    backgroundColor: "#c62828",
+    color: "#ffffff",
     borderRadius: "4px",
     marginBottom: "20px",
   },
@@ -295,20 +365,21 @@ const styles = {
     marginBottom: "30px" as const,
   },
   statCard: {
-    backgroundColor: "white",
-    border: "1px solid #ddd",
+    backgroundColor: "#1a1a1a",
+    border: "1px solid #333",
     borderRadius: "8px",
     padding: "20px",
     textAlign: "center" as const,
+    borderLeft: "4px solid #42a5f5",
   },
   statValue: {
     fontSize: "36px" as const,
     fontWeight: "bold" as const,
-    color: "#6366f1",
+    color: "#42a5f5",
     marginBottom: "8px",
   },
   statLabel: {
-    color: "#666",
+    color: "#999",
     fontSize: "14px" as const,
   },
   tabs: {
@@ -316,19 +387,13 @@ const styles = {
     gap: "10px" as const,
     marginBottom: "20px" as const,
   },
-  tabButton: {
-    padding: "10px 16px",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer" as const,
-    fontWeight: "600" as const,
-  },
   section: {
-    backgroundColor: "white",
-    border: "1px solid #ddd",
+    backgroundColor: "#1a1a1a",
+    border: "1px solid #333",
     borderRadius: "8px",
     padding: "20px",
     marginBottom: "20px" as const,
+    color: "#e0e0e0",
   },
   infoGrid: {
     display: "grid" as const,
@@ -337,25 +402,27 @@ const styles = {
     marginTop: "20px" as const,
   },
   infoBox: {
-    backgroundColor: "#f9fafb",
-    border: "1px solid #e5e7eb",
+    backgroundColor: "#2d2d2d",
+    border: "1px solid #444",
     borderRadius: "8px",
     padding: "16px",
+    borderLeft: "4px solid #42a5f5",
   },
   largeNumber: {
     fontSize: "48px" as const,
     fontWeight: "bold" as const,
-    color: "#6366f1",
+    color: "#42a5f5",
     margin: "10px 0",
   },
   infoText: {
-    color: "#666",
+    color: "#999",
     marginTop: "8px",
   },
   list: {
     listStyle: "none" as const,
     padding: 0,
     marginTop: "12px",
+    color: "#e0e0e0",
   },
   tableWrapper: {
     overflowX: "auto" as const,
@@ -367,11 +434,12 @@ const styles = {
     fontSize: "14px" as const,
   },
   tableRow: {
-    borderBottom: "1px solid #e5e7eb",
+    borderBottom: "1px solid #333",
   },
   tableCell: {
     padding: "12px",
     textAlign: "left" as const,
+    color: "#e0e0e0",
   },
   flagsContainer: {
     display: "flex" as const,
@@ -379,19 +447,19 @@ const styles = {
     flexWrap: "wrap" as const,
   },
   flagBadge: {
-    backgroundColor: "#fee2e2",
-    color: "#991b1b",
+    backgroundColor: "#c62828",
+    color: "#ffffff",
     padding: "2px 8px",
     borderRadius: "3px",
     fontSize: "11px" as const,
     fontWeight: "600" as const,
   },
   footer: {
-    backgroundColor: "#f0f9ff",
-    border: "1px solid #bfdbfe",
+    backgroundColor: "#2d2d2d",
+    border: "1px solid #42a5f5",
     borderRadius: "8px",
     padding: "16px",
     marginTop: "30px" as const,
-    color: "#0369a1",
+    color: "#42a5f5",
   },
 };

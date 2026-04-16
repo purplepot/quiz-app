@@ -19,6 +19,11 @@ import { OrganizerAuthForm } from "./components/OrganizerAuthForm";
 import { QuizHistory } from "./components/QuizHistory";
 import { AvailableQuizzes } from "./components/AvailableQuizzes";
 import { AdminPanel } from "./components/AdminPanel";
+import { Learn } from "./components/Learn";
+import { Help } from "./components/Help";
+import { References } from "./components/References";
+import { Credits } from "./components/Credits";
+import { Visualization } from "./components/Visualization";
 import { useWebSocket } from "./hooks/useWebSocket";
 import { getClientIdentity } from "./utils/identity";
 
@@ -68,6 +73,13 @@ function App() {
     "quizzes",
   );
   const [quizCode, setQuizCode] = useState("");
+
+  // --- Educational modal states ---
+  const [showLearn, setShowLearn] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [showReferences, setShowReferences] = useState(false);
+  const [showCredits, setShowCredits] = useState(false);
+  const [showVisualization, setShowVisualization] = useState(false);
   const [players, setPlayers] = useState<PlayerSnapshot[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState<Omit<
     QuizQuestion,
@@ -344,15 +356,8 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h2>Quiz Host</h2>
-        <span
-          style={{
-            marginLeft: "auto",
-            display: "flex",
-            gap: "15px",
-            alignItems: "center",
-          }}
-        >
+        <div style={{ display: "flex", gap: "15px", alignItems: "center" }}>
+          <h2>Quiz Host</h2>
           <div
             style={{
               display: "flex",
@@ -422,7 +427,104 @@ function App() {
               Admin
             </button>
           </div>
-          <span style={{ fontSize: "14px", color: "#666" }}>
+        </div>
+
+        <span
+          style={{
+            marginLeft: "auto",
+            display: "flex",
+            gap: "10px",
+            alignItems: "center",
+          }}
+        >
+          <button
+            onClick={() => setShowLearn(true)}
+            style={{
+              padding: "8px 12px",
+              backgroundColor: "#bb86fc",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "12px",
+              fontWeight: "600",
+            }}
+            title="Learn about the system"
+          >
+            📚 Learn
+          </button>
+          <button
+            onClick={() => setShowHelp(true)}
+            style={{
+              padding: "8px 12px",
+              backgroundColor: "#26c6da",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "12px",
+              fontWeight: "600",
+            }}
+            title="Get help and FAQ"
+          >
+            ❓ Help
+          </button>
+          <button
+            onClick={() => setShowVisualization(true)}
+            style={{
+              padding: "8px 12px",
+              backgroundColor: "#42a5f5",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "12px",
+              fontWeight: "600",
+            }}
+            title="See interactive visualization"
+          >
+            📊 Viz
+          </button>
+          <button
+            onClick={() => setShowReferences(true)}
+            style={{
+              padding: "8px 12px",
+              backgroundColor: "#4caf50",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "12px",
+              fontWeight: "600",
+            }}
+            title="References and external links"
+          >
+            🔗 Refs
+          </button>
+          <button
+            onClick={() => setShowCredits(true)}
+            style={{
+              padding: "8px 12px",
+              backgroundColor: "#ce93d8",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "12px",
+              fontWeight: "600",
+            }}
+            title="About this project"
+          >
+            👥 Credits
+          </button>
+          <span
+            style={{
+              fontSize: "14px",
+              color: "#666",
+              paddingLeft: "10px",
+              borderLeft: "1px solid #ddd",
+            }}
+          >
             Logged in as: <strong>{user?.name}</strong>
           </span>
           <button
@@ -455,6 +557,17 @@ function App() {
             End Quiz
           </button>
         </div>
+      )}
+
+      {/* Educational Modals */}
+      {showLearn && <Learn onClose={() => setShowLearn(false)} />}
+      {showHelp && <Help onClose={() => setShowHelp(false)} />}
+      {showReferences && (
+        <References onClose={() => setShowReferences(false)} />
+      )}
+      {showCredits && <Credits onClose={() => setShowCredits(false)} />}
+      {showVisualization && (
+        <Visualization onClose={() => setShowVisualization(false)} />
       )}
     </div>
   );

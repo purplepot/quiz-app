@@ -58,7 +58,10 @@ export function QuizHistory({ onExit }: { onExit?: () => void }) {
     try {
       setLoading(true);
       const token = localStorage.getItem("auth_token");
-      console.log("[QuizHistory] Fetching quizzes with token:", token ? "present" : "missing");
+      console.log(
+        "[QuizHistory] Fetching quizzes with token:",
+        token ? "present" : "missing",
+      );
       const res = await fetch(`${API_URL}/api/quizzes`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -469,7 +472,7 @@ const styles = {
   } as React.CSSProperties,
   quizGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+    gridTemplateColumns: "repeat(4, 1fr)",
     gap: "1.5rem",
   } as React.CSSProperties,
   quizCard: {

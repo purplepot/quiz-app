@@ -9,6 +9,19 @@ import type {
 } from "../../packages/shared-types";
 import { quizPersistence } from "./persistence";
 import { broadcast, send } from "./utils";
+import {
+  getAnswerSuspicionScore,
+  getAggregatePlayerSuspicionScore,
+  shouldFlagAnswerImmediately,
+  shouldFlagPlayerAggregate,
+  getSeverityLevel,
+} from "./suspicionScoring";
+import { QuizAnswerTracking } from "./playerStats";
+import {
+  detectCollusion,
+  buildAnswerVector,
+  formatCollusionDetails,
+} from "./collusionDetection";
 
 interface Player {
   id: string;
@@ -46,6 +59,8 @@ export class QuizRoom {
   remaining = 0;
 
   questionStartedAt = 0;
+
+  private answerTracking = new QuizAnswerTracking();
 
   constructor(id: string, code: string) {
     this.id = id;
@@ -205,12 +220,34 @@ export class QuizRoom {
 
     this.answers.set(playerId, choiceIndex);
 
+    // Record answer for tracking/aggregation
+    this.answerTracking.recordAnswer(
+      playerId,
+      telemetry,
+      isCorrect,
+      this.remaining,
+    );
+
+    // Calculate rule-based suspicion score for this answer
+    const answerSuspicion = getAnswerSuspicionScore({
+      timeTakenMs: telemetry.timeTakenMs,
+      tabSwitchCount: telemetry.tabSwitchCount,
+      isCorrect,
+      remainingAtAnswer: this.remaining,
+      focusedAtSubmit: telemetry.focusedAtSubmit,
+    });
+
+    // Convert 0-1 score to discrete points (multiply by 5 for 0-5 points)
+    const suspicionPoints = Math.round(answerSuspicion * 5);
+    if (suspicionPoints > 0) {
+      player.suspicionScore += suspicionPoints;
+    }
+
+    // Add specific flags based on old thresholds for backward compatibility
     if (telemetry.timeTakenMs < 600) {
-      player.suspicionScore += 1;
       player.flags.add("answer_too_fast");
     }
     if (telemetry.tabSwitchCount > 2) {
-      player.suspicionScore += 2;
       player.flags.add("high_tab_switch_count");
     }
     if (telemetry.submittedAt < this.questionStartedAt) {
@@ -218,12 +255,20 @@ export class QuizRoom {
       player.flags.add("invalid_answer_timestamp");
     }
     if (!telemetry.focusedAtSubmit) {
-      player.suspicionScore += 1;
       player.flags.add("unfocused_submit");
     }
     if (telemetry.timeTakenMs < 0) {
       player.suspicionScore += 2;
       player.flags.add("negative_answer_time");
+    }
+
+    // Check if answer should trigger immediate flag
+    if (shouldFlagAnswerImmediately(answerSuspicion)) {
+      const severity = getSeverityLevel(answerSuspicion);
+      player.flags.add(`suspicious_answer_${severity}`);
+      console.log(
+        `[suspicion] Player ${playerId} flagged with ${severity} severity on answer (score: ${answerSuspicion.toFixed(2)})`,
+      );
     }
 
     void quizPersistence
@@ -363,6 +408,9 @@ export class QuizRoom {
   end(): void {
     if (this.timerId) clearInterval(this.timerId);
 
+    // Analyze aggregate player statistics for suspicious patterns
+    this.analyzeSuspiciousPatterns();
+
     this.phase = "ended";
     const endedAt = Date.now();
 
@@ -374,6 +422,126 @@ export class QuizRoom {
       .catch((error) => console.error("[Mongo] logEvent failed", error));
 
     this.broadcastToAll({ type: "ended", endedAt });
+  }
+
+  /**
+   * Analyze aggregate player statistics to detect suspicious patterns
+   */
+  private analyzeSuspiciousPatterns(): void {
+    // Analyze individual player patterns
+    for (const [playerId, player] of this.players) {
+      const stats = this.answerTracking.getPlayerStats(playerId);
+
+      if (stats.answerCount === 0) continue;
+
+      const aggregateSuspicion = getAggregatePlayerSuspicionScore(stats);
+
+      if (shouldFlagPlayerAggregate(aggregateSuspicion)) {
+        const severity = getSeverityLevel(aggregateSuspicion);
+        player.flags.add(`aggregate_suspicious_${severity}`);
+        player.suspicionScore += Math.round(aggregateSuspicion * 10);
+
+        console.log(
+          `[suspicion-aggregate] Player ${playerId} (${player.name}) flagged for ${severity} aggregate suspicion`,
+          {
+            accuracy: `${(stats.accuracy * 100).toFixed(1)}%`,
+            avgTime: `${stats.avgTime}ms`,
+            fastCorrectRatio: `${(stats.fastCorrectRatio * 100).toFixed(1)}%`,
+            stdTime: `${stats.stdTime}ms`,
+            score: aggregateSuspicion.toFixed(2),
+          },
+        );
+
+        void quizPersistence
+          .updateSuspicion({
+            quizId: this.id,
+            playerId,
+            suspicionScore: player.suspicionScore,
+            flags: Array.from(player.flags),
+          })
+          .catch((error) =>
+            console.error("[Mongo] updateSuspicion failed", error),
+          );
+      }
+    }
+
+    // Detect collusion between players
+    this.detectAndFlagCollusion();
+  }
+
+  /**
+   * Detect collusion patterns using KNN-based answer similarity
+   */
+  private detectAndFlagCollusion(): void {
+    // Build answer vectors for each player
+    const playerVectors = Array.from(this.players.entries()).map(
+      ([playerId, player]) => {
+        const tracker = this.answerTracking.getPlayerTracker(playerId);
+        const records = tracker.getAnswers();
+        return buildAnswerVector(playerId, player.name, records);
+      },
+    );
+
+    // Detect collusion pairs
+    const suspiciousPairs = detectCollusion(playerVectors);
+
+    if (suspiciousPairs.length > 0) {
+      console.log(
+        `[collusion] Detected ${suspiciousPairs.length} suspicious pair(s)`,
+      );
+    }
+
+    // Flag players involved in collusion
+    for (const pair of suspiciousPairs) {
+      const player1 = this.players.get(pair.player1Id);
+      const player2 = this.players.get(pair.player2Id);
+
+      if (!player1 || !player2) continue;
+
+      // Add collusion flag with confidence level
+      player1.flags.add(`collusion_${pair.confidence}`);
+      player2.flags.add(`collusion_${pair.confidence}`);
+
+      // Add suspicion score based on confidence
+      const scoreIncrease =
+        pair.confidence === "critical"
+          ? 15
+          : pair.confidence === "high"
+            ? 10
+            : pair.confidence === "medium"
+              ? 5
+              : 2;
+
+      player1.suspicionScore += scoreIncrease;
+      player2.suspicionScore += scoreIncrease;
+
+      console.log(
+        `[collusion-flagged] ${formatCollusionDetails(pair)} (${pair.confidence})`,
+      );
+
+      // Update both players in database
+      void quizPersistence
+        .updateSuspicion({
+          quizId: this.id,
+          playerId: pair.player1Id,
+          suspicionScore: player1.suspicionScore,
+          flags: Array.from(player1.flags),
+        })
+        .catch((error) =>
+          console.error("[Mongo] updateSuspicion failed", error),
+        );
+
+      void quizPersistence
+        .updateSuspicion({
+          quizId: this.id,
+          playerId: pair.player2Id,
+          suspicionScore: player2.suspicionScore,
+          flags: Array.from(player2.flags),
+        })
+        .catch((error) =>
+          console.error("[Mongo] updateSuspicion failed", error),
+        );
+    }
   }
 
   private broadcastToAll(message: ServerMessage): void {
